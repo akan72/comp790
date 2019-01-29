@@ -30,13 +30,20 @@ Graph Autoencoder
         - Previous work and what we will look at and improve on 
 
 
+
+    - Variational vs Adversarial approach
+        - Convolutional architecture?
+        - Neighbors
+    - Pick a specific domain for validation metrics
+    - Difference between training and valid methods 
+    - invariance in which ways
+        - Related to metrics?
+    - Generate subgraphs vs total graphs
         
     - Likelihood of an adjacency matrix
     - Graph automorphism problem 
     - Same likelihood for all permutations of the same adjacency matrix
     - autoencoders vs. permutation invariance same likelihoods
-
-
 
 
 

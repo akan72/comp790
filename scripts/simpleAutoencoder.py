@@ -30,7 +30,11 @@ img_transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+<<<<<<< HEAD
 dataset = MNIST('../data', transform=img_transform)
+=======
+dataset = MNIST('./data', transform=img_transform)
+>>>>>>> 22dec23a9852955af270330c0b169369556a43d0
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 
