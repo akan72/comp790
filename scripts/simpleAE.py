@@ -13,7 +13,7 @@ num_epochs = 10
 batch_size = 128
 learning_rate = 1e-3 
 
-dataset = stackOverflowDataset(path="../data/mathOverflow/sx-mathoverflow.txt")
+dataset = stackOverflowDataset(path="..data/mathOverflow/sx-mathoverflow.txt")
 
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 

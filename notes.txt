@@ -1,63 +1,21 @@
-Graph Autoencoder
-    - https://arxiv.org/pdf/1611.07308.pdf Variational Graph Auto-Encoders
-    - https://arxiv.org/pdf/1802.08773.pdf GraphRNN
-    - https://arxiv.org/pdf/1601.00670.pdf VI Review for Statisticians
-    - https://arxiv.org/pdf/1802.04407.pdf Adversarially Regularized Graph Autoencoder for Graph Embedding
-    - https://arxiv.org/pdf/1812.01217.pdf SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
-    - https://www.stat.washington.edu/~pdhoff/courses/581/LectureNotes/equivariance.pdf Invariance
+Papers to Read
 
+- Deep Learning on Graphs Survey (https://arxiv.org/pdf/1812.04202.pdf)
+- Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
+- GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
+- DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
+- Graph Model Selection using Maximum Likelihood (http://homepages.inf.ed.ac.uk/rsanthan/Papers/BezakovaKalaiSanthanam.pdf)
+- Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
+- SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
+(https://arxiv.org/pdf/1812.01217.pdf)
+- GraphCNN (https://arxiv.org/pdf/1609.02907.pdf)
+- Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
 
-    - https://arxiv.org/pdf/1509.09292.pdf Convolutional Networks on Graphs for Learning Molecular Fingerprints
-    - https://arxiv.org/pdf/1802.04364.pdf
-    - https://arxiv.org/pdf/1706.02263.pdf
-    - https://arxiv.org/pdf/1703.06103.pdf
-    - https://arxiv.org/pdf/1802.04407.pdf
-    - https://en.wikipedia.org/wiki/Graph_isomorphism_problem
-
-    Genomics
-    http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC5728678&blobtype=pdf
-    https://github.com/gwaygenomics/tybalt
-
-    - Use with VAEs to generate graphs
-    - miss with autoencoders 
-    - Permutation invariance, semantic interpretation, tractable
-    - validate with GAN
-    - protein molecules, genomics, social networks, astronomy, pathfinding (maps, robotics)
-    - graph autoencoding VAEs 
-        - graphRNN, VAEs    
-        - Variantional Graph autoencoders
-        - Evaluation: Lower bound on likelihood, count Distribution of subgraphs 
-        - Previous work and what we will look at and improve on 
-
-
-
-    - Variational vs Adversarial approach
-        - Convolutional architecture?
-        - Neighbors
-    - Pick a specific domain for validation metrics
-    - Difference between training and valid methods 
-    - invariance in which ways
-        - Related to metrics?
-    - Generate subgraphs vs total graphs
-        
-    - Likelihood of an adjacency matrix
-    - Graph automorphism problem 
-    - Same likelihood for all permutations of the same adjacency matrix
-    - autoencoders vs. permutation invariance same likelihoods
-
-
-
-Out-of-Sample Recognition and Confidence
-End-To-End Semantic ZSL
-Training Tractable Models
-GAN-Based Embedding Validation 
-Set Embeddings and Point Cloud Models
-    - Generating sets of feature vectors 
-    - Challenges related to permutation invariance
-    - How to represent and embed these sets (semantically relevant features)
-
-Graph Generative Models
-Better Features with Distributions
-Density-Based cycle GAN
-Hybrid Kernel Density
-Gaussian Autoencoders
+- Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Network Comparison (https://www.ucl.ac.uk/bigdata-theory/wp-content/uploads/2015/03/Gesine-Reinert.pdf)
+- Algorithms for Graph Similarity and Subgraph Matching (https://people.eecs.berkeley.edu/~aramdas/reports/DBreport.pd)f
+- Graph Evolution: Densification and Shrinking Diameters (https://www.cs.cmu.edu/~jure/pubs/powergrowth-tkdd.pdf)
+- Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
+- Mixed Membership Stochastic Blockmodels (http://jmlr.csail.mit.edu/papers/volume9/airoldi08a/airoldi08a.pdf)
+- Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)
