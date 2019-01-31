@@ -11,15 +11,14 @@ from torchvision.utils import save_image
 
 import matplotlib.pyplot as plt
 
-if not os.path.exists('./mlp_img'):
-    os.mkdir('./mlp_img')
+# if not os.path.exists('./mlp_img'):
+#     os.mkdir('./mlp_img')
 
-
-def to_img(x):
-    x = 0.5 * (x + 1)
-    x = x.clamp(0, 1)
-    x = x.view(x.size(0), 1, 28, 28)
-    return x
+# def to_img(x):
+#     x = 0.5 * (x + 1)
+#     x = x.clamp(0, 1)
+#     x = x.view(x.size(0), 1, 28, 28)
+#     return x
 
 num_epochs = 2
 batch_size = 128
@@ -30,11 +29,7 @@ img_transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-<<<<<<< HEAD
-dataset = MNIST('../data', transform=img_transform)
-=======
 dataset = MNIST('./data', transform=img_transform)
->>>>>>> 22dec23a9852955af270330c0b169369556a43d0
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 
