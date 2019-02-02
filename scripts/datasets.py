@@ -90,6 +90,6 @@ class stackOverflowAdjacencyMatrix(stackOverflowDataset):
 
 # df = stackOverflowDataset(path="data/mathOverflow/sx-mathoverflow.txt")
 # df = stackOverflowDatasetWithEdges(path="data/mathOverflow/sx-mathoverflow.txt")
-df = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=450)
-# print(len(df[0]))
-print(df.data.shape)
+# df = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=450)
+# # print(len(df[0]))
+# print(df.data.shape)

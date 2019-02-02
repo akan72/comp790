@@ -1,7 +1,5 @@
 Graph Autoencoder
     - https://arxiv.org/pdf/1611.07308.pdf Variational Graph Auto-Encoders
-    - https://arxiv.org/pdf/1802.08773.pdf GraphRNN
-    - https://arxiv.org/pdf/1601.00670.pdf VI Review for Statisticians
     - https://arxiv.org/pdf/1802.04407.pdf Adversarially Regularized Graph Autoencoder for Graph Embedding
     - https://arxiv.org/pdf/1812.01217.pdf SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
     - https://www.stat.washington.edu/~pdhoff/courses/581/LectureNotes/equivariance.pdf Invariance
@@ -39,7 +37,6 @@ Graph Autoencoder
     - invariance in which ways
         - Related to metrics?
     - Generate subgraphs vs total graphs
-        
     - Likelihood of an adjacency matrix
     - Graph automorphism problem 
     - Same likelihood for all permutations of the same adjacency matrix
