@@ -1,6 +1,8 @@
 .vscode
 data/raw*
 data/processed*
+data/old*
+data/youtubeGrowth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
