@@ -1,21 +1,30 @@
 Papers to Read
 
+Main Papers:
 - Deep Learning on Graphs Survey (https://arxiv.org/pdf/1812.04202.pdf)
-- Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
-- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
-- GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
 - DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
+- GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
 - Graph Model Selection using Maximum Likelihood (http://homepages.inf.ed.ac.uk/rsanthan/Papers/BezakovaKalaiSanthanam.pdf)
-- Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
-- SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
-(https://arxiv.org/pdf/1812.01217.pdf)
-- GraphCNN (https://arxiv.org/pdf/1609.02907.pdf)
+- GraphCNN Classification (https://arxiv.org/pdf/1609.02907.pdf)
 - Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
+- Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
 
+Recommended:
+- NetGAN: Generating Graphs via Random Walks (https://arxiv.org/pdf/1803.00816.pdf)
+- GraphGAN: Graph Representation Learning with Generative Adversarial Nets (https://arxiv.org/pdf/1711.08267.pdf)
+- GraphSGAN (https://arxiv.org/pdf/1809.00130.pdf)
+
+Networks and Graph Theory:
 - Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
 - Network Comparison (https://www.ucl.ac.uk/bigdata-theory/wp-content/uploads/2015/03/Gesine-Reinert.pdf)
 - Algorithms for Graph Similarity and Subgraph Matching (https://people.eecs.berkeley.edu/~aramdas/reports/DBreport.pd)f
 - Graph Evolution: Densification and Shrinking Diameters (https://www.cs.cmu.edu/~jure/pubs/powergrowth-tkdd.pdf)
-- Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
+
+
+Other: 
+- Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
+- SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
+(https://arxiv.org/pdf/1812.01217.pdf)
 - Mixed Membership Stochastic Blockmodels (http://jmlr.csail.mit.edu/papers/volume9/airoldi08a/airoldi08a.pdf)
 - Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)

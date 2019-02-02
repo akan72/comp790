@@ -67,10 +67,12 @@ class stackOverflowDatasetWithEdges(stackOverflowDataset):
 
 class stackOverflowAdjacencyMatrix(stackOverflowDataset):
     def __init__(self, path, nrows, graphType=nx.DiGraph, transform=None):
-        self.data = pd.read_csv(path, sep=" ", header=None).iloc[:nrows, :2].values
+        # self.data = pd.read_csv(path, sep=" ", header=None).iloc[:nrows, :2].values
+        self.data = pd.read_csv(path, sep=" ", header=None)
         self.transform = transform
 
-        graph = nx.from_edgelist(self.data[:nrows], create_using=graphType)
+        graph = nx.from_edgelist(self.data.iloc[:nrows, :2].values, create_using=graphType)
+        # graph = nx.from_edgelist(self.data[:nrows], create_using=graphType)
 
         self.adjacency = pd.DataFrame(nx.to_numpy_matrix(graph))
    
@@ -89,3 +91,5 @@ class stackOverflowAdjacencyMatrix(stackOverflowDataset):
 # df = stackOverflowDataset(path="data/mathOverflow/sx-mathoverflow.txt")
 # df = stackOverflowDatasetWithEdges(path="data/mathOverflow/sx-mathoverflow.txt")
 df = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=450)
+# print(len(df[0]))
+print(df.data.shape)

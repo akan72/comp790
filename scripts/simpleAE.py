@@ -9,11 +9,11 @@ from datasets import stackOverflowAdjacencyMatrix
 import networkx as nx
 
 
-num_epochs = 300
+num_epochs = 100
 batch_size = 128
 learning_rate = 1e-3 
 
-dataset = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=450)
+dataset = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=1000)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 size = len(dataset.adjacency)
@@ -53,6 +53,8 @@ optimizer = torch.optim.Adam(
     model.parameters(), lr=learning_rate, weight_decay=1e-5
     )
 
+
+outputList = []
 for epoch in range(num_epochs):
     for data in dataloader:
         row = data.float()
@@ -60,6 +62,7 @@ for epoch in range(num_epochs):
 
         # forward pass
         output = model(row)
+
         loss = criterion(output, row)
 
         # backward pass
@@ -67,11 +70,16 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
     
+    outputList.append(output)
+
     # training log 
     print('epoch [{}/{}], loss:{:.4f}'
           .format(epoch + 1, num_epochs, loss.data.item()))
 
 torch.save(model.state_dict(), './simple_autoencoder.path')
+
+print(outputList[0])
+print(outputList[0:5])
 
 
 
