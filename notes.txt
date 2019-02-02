@@ -12,6 +12,17 @@ Main Papers:
 
 Recommended:
 - NetGAN: Generating Graphs via Random Walks (https://arxiv.org/pdf/1803.00816.pdf)
+    - NetGAN is able to generate graphs that capture important topological properties of complex
+        networks, such as community structure and degree distribution, without having to manually specify any of them.
+        Moreover, our proposed model shows strong generalization
+        properties, as highlighted by its competitive link prediction
+        performance on a number of datasets. NetGAN can also
+        be used for generating graphs with continuously varying
+        characteristics using latent space interpolation. Combined
+        our results provide strong evidence that implicit generative
+        models for graphs are well-suited for capturing the complex
+        nature of real-world networks.
+        
 - GraphGAN: Graph Representation Learning with Generative Adversarial Nets (https://arxiv.org/pdf/1711.08267.pdf)
 - GraphSGAN (https://arxiv.org/pdf/1809.00130.pdf)
 
