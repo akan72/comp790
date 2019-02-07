@@ -4,6 +4,7 @@ from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision import transforms
+import pickle as pkl
 
 from datasets import stackOverflowAdjacencyMatrix
 import networkx as nx
@@ -13,7 +14,7 @@ num_epochs = 100
 batch_size = 128
 learning_rate = 1e-3 
 
-dataset = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=1000)
+dataset = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=5000)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 size = len(dataset.adjacency)
@@ -38,7 +39,7 @@ class autoencoder(nn.Module):
             nn.Linear(64, 128),
             nn.ReLU(True),
             nn.Linear(128, size),
-            nn.Tanh())
+            nn.Sigmoid())
         
     def forward(self, x):
         x = self.encoder(x)
@@ -46,9 +47,8 @@ class autoencoder(nn.Module):
         return x 
 
 
-
 model = autoencoder()
-criterion = nn.MSELoss()
+criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(
     model.parameters(), lr=learning_rate, weight_decay=1e-5
     )
@@ -57,29 +57,34 @@ optimizer = torch.optim.Adam(
 outputList = []
 for epoch in range(num_epochs):
     for data in dataloader:
-        row = data.float()
-        row = Variable(row)
+        target = data.float()
+        target = Variable(target)
 
         # forward pass
-        output = model(row)
+        output = model(target)
 
-        loss = criterion(output, row)
+        # loss = criterion(output, target.long())
+        loss = criterion(output, torch.max(target, 1)[1])
 
         # backward pass
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
     
-    outputList.append(output)
-
     # training log 
-    print('epoch [{}/{}], loss:{:.4f}'
+
+
+    if epoch % 10 == 0:
+        print('epoch [{}/{}], loss:{:.4f}'
           .format(epoch + 1, num_epochs, loss.data.item()))
 
+        outputList.append(output.cpu().data)
+
+
+pkl.dump([x for x in outputList], open("data/temp/autoencoderOutput.pkl", "wb"))
 torch.save(model.state_dict(), './simple_autoencoder.path')
 
-print(outputList[0])
-print(outputList[0:5])
+
 
 
 

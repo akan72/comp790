@@ -2,7 +2,11 @@
 data/raw*
 data/processed*
 data/old*
+data/temp*
 data/youtubeGrowth
+data/enronEmployees
+data/facebookLinks
+data/mathOverflow/dyngraph.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

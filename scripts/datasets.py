@@ -3,21 +3,23 @@ import torch
 import numpy as np
 import pandas as pd 
 import networkx as nx
+import dynetx as dn
 
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
-# Stackoverflow Math Dataset
+# Stackoverflow Math Dataset (Temporarl)
  
 # SRC: id of the source node (a user)
 # TGT: id of the target node (a user)
 # UNIXTS: Unix timestamp (seconds since the epoch)
 
-# TODO: Create adjacency matrix version
-
 class stackOverflowDataset(Dataset):
     def __init__(self, path, transform=None): 
         self.data = pd.read_csv(path, sep=" ", header=None)
+
+        # Convert unix times to human read
+        self.data[3] = pd.to_datetime(self.data[2], unit='s')
         self.transform = transform
 
     def __len__(self):
@@ -52,9 +54,10 @@ class stackOverflowDatasetWithEdges(stackOverflowDataset):
         # Tuple
         fromNode = self.data.iloc[idx, 0]
         toNode = self.data.iloc[idx, 1]
-        timestamp = self.data.iloc[idx, 2]
+        unixTime = self.data.iloc[idx, 2]
+        timestamp = self.data.iloc[idx, 3]
 
-        row = (fromNode, toNode, timestamp)
+        row = (fromNode, toNode, unixTime, timestamp)
         
 
         # TODO: Apply transformation to timestamp
@@ -65,11 +68,15 @@ class stackOverflowDatasetWithEdges(stackOverflowDataset):
         return row
 
 
-class stackOverflowAdjacencyMatrix(stackOverflowDataset):
-    def __init__(self, path, nrows, graphType=nx.DiGraph, transform=None):
+class stackOverflowAdjacencyMatrix(Dataset):
+    def __init__(self, path, nrows=None, graphType=nx.DiGraph, transform=None):
         # self.data = pd.read_csv(path, sep=" ", header=None).iloc[:nrows, :2].values
         self.data = pd.read_csv(path, sep=" ", header=None)
+        self.data[3] = pd.to_datetime(self.data[2], unit='s')
         self.transform = transform
+
+        if nrows is None:
+            nrows = self.data.shape[0]
 
         graph = nx.from_edgelist(self.data.iloc[:nrows, :2].values, create_using=graphType)
         # graph = nx.from_edgelist(self.data[:nrows], create_using=graphType)
@@ -87,9 +94,46 @@ class stackOverflowAdjacencyMatrix(stackOverflowDataset):
 
         return row
 
-
 # df = stackOverflowDataset(path="data/mathOverflow/sx-mathoverflow.txt")
 # df = stackOverflowDatasetWithEdges(path="data/mathOverflow/sx-mathoverflow.txt")
 # df = stackOverflowAdjacencyMatrix(path="data/mathOverflow/sx-mathoverflow.txt", nrows=450)
-# # print(len(df[0]))
+# print(len(df[0]))
 # print(df.data.shape)
+ 
+class dynamicDataset(Dataset):
+    def __init__(self, path, nrows=None, graphType=nx.DiGraph, transform=None):
+        # self.data = pd.read_csv(path, sep=" ", header=None).iloc[:nrows, :2].values
+        self.data = pd.read_csv(path, sep=" ", header=None)
+        self.data[3] = pd.to_datetime(self.data[2], unit='s') 
+        self.data.columns = ['from', 'to', 'unixTime', 'timestamp']
+        self.data.set_index('timestamp', inplace=True)
+
+        self.transform = transform
+
+        if nrows is None:
+            nrows = self.data.shape[0]
+
+        #graph = nx.from_edgelist(self.data.iloc[:nrows, :2].values, create_using=graphType)
+        # graph = nx.from_edgelist(self.data[:nrows], create_using=graphType)
+
+        #self.adjacency = pd.DataFrame(nx.to_numpy_matrix(graph))
+   
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        #row = self.adjacency.iloc[idx, :].values
+        row = self.data.iloc[idx, :].values
+        if self.transform:
+            row = self.transform(row)
+
+        return row
+
+
+
+# df = dynamicDataset(path="data/enronEmployees/ia-enron-employees/ia-enron-employees.txt")
+# df = dynamicDataset(path="data/mathOverflow/sx-mathoverflow.txt")
+# print(df[0])
+
+# df  = dn.read_interactions(path="data/mathOverflow/sx-mathoverflow.txt", directed=True, delimiter=" ", nodetype=int, timestamptype=int)
+# dn.write_interactions(df, "data/mathOverflow/dyngraph.txt")

@@ -17,5 +17,4 @@ for f in tqdm(files):
     df = nx.read_graphml(f)
     output.append(nx.to_numpy_matrix(df))
 
-
 pkl.dump(output, open("span(1(year(s)).pkl", "wb"))
