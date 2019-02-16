@@ -1,8 +1,10 @@
 from __future__ import print_function, division
+import os
 import torch
 import numpy as np
 import pandas as pd 
 import networkx as nx
+import glob
 import dynetx as dn
 
 from torch.utils.data import Dataset, DataLoader
@@ -100,7 +102,7 @@ class stackOverflowAdjacencyMatrix(Dataset):
 # print(len(df[0]))
 # print(df.data.shape)
  
-class dynamicDataset(Dataset):
+class oldDynamicDataset(Dataset):
     def __init__(self, path, nrows=None, graphType=nx.DiGraph, transform=None):
         # self.data = pd.read_csv(path, sep=" ", header=None).iloc[:nrows, :2].values
         self.data = pd.read_csv(path, sep=" ", header=None)
@@ -113,10 +115,9 @@ class dynamicDataset(Dataset):
         if nrows is None:
             nrows = self.data.shape[0]
 
-        #graph = nx.from_edgelist(self.data.iloc[:nrows, :2].values, create_using=graphType)
+        # graph = nx.from_edgelist(self.data.iloc[:nrows, :2].values, create_using=graphType)
         # graph = nx.from_edgelist(self.data[:nrows], create_using=graphType)
-
-        #self.adjacency = pd.DataFrame(nx.to_numpy_matrix(graph))
+        # self.adjacency = pd.DataFrame(nx.to_numpy_matrix(graph))
    
     def __len__(self):
         return len(self.data)
@@ -129,11 +130,32 @@ class dynamicDataset(Dataset):
 
         return row
 
-
-
-# df = dynamicDataset(path="data/enronEmployees/ia-enron-employees/ia-enron-employees.txt")
-# df = dynamicDataset(path="data/mathOverflow/sx-mathoverflow.txt")
-# print(df[0])
+# df = oldDynamicDataset(path="data/enronEmployees/ia-enron-employees/ia-enron-employees.txt")
+# df = oldDynamicDataset(path="data/mathOverflow/sx-mathoverflow.txt")
 
 # df  = dn.read_interactions(path="data/mathOverflow/sx-mathoverflow.txt", directed=True, delimiter=" ", nodetype=int, timestamptype=int)
 # dn.write_interactions(df, "data/mathOverflow/dyngraph.txt")
+
+
+class dynamicDataset(Dataset):
+    def __init__(self, path, transform=None):
+        self.data = []
+
+        for filename in glob.glob(os.path.join(path, '*.adjlist')):
+            G = nx.read_adjlist(filename)
+
+            adjList = []
+            for adj in nx.generate_adjlist(G):
+                adjList.append([int(i) for i in adj.split()])
+
+            self.data.append(adjList)
+
+    def __len__(self):
+        print(len(self.data))
+
+    def __getitem__(self, idx):
+        return(self.data[idx])
+            
+
+
+
