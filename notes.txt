@@ -6,28 +6,34 @@ Main Papers:
 of nodes, i.e. if we change the indices of nodes and edges using
 a bijective function between two vertex sets, representation of the
 whole graph should not change. 
+- Graph Neural Networks: A Review of Methods and Applications (https://arxiv.org/pdf/1812.08434.pdf)
 - GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
-- Streaming Graph Neural Networks (Dynamic Graph NNs) (https://arxiv.org/pdf/1810.10627.pdf)
+- Learning Graph Neighborhoods from LSTMs (https://arxiv.org/pdf/1611.06882.pdf)
 - Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
-- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
+- Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)
+- Social LSTM: Human Trajectory Prediction in Crowded Spaces http://cvgl.stanford.edu/papers/CVPR16_Social_LSTM.pdf
+- GraphCNN Classification (https://arxiv.org/pdf/1609.02907.pdf)
+- DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
 - Graph Model Selection using Maximum Likelihood (http://homepages.inf.ed.ac.uk/rsanthan/Papers/BezakovaKalaiSanthanam.pdf)
 - Thesis (Deep Learning on Attributed Graphs): https://arxiv.org/pdf/1901.08296.pdf
-- Dynamic Graph Generation Network: Generating Relational Knowledge from
-Diagrams (https://arxiv.org/pdf/1711.09528.pdf)
-- Towards GAN Benchmarks Which Require Generalization (https://colinraffel.com/publications/iclr2019towards.pdf)
-- Graph Decompositions Analysis and Comparison
-for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
 
-
-
-- GCN acceleration with sampling 
-- DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
-- GraphCNN Classification (https://arxiv.org/pdf/1609.02907.pdf)
 - Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
 - Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
-
 - Auto-Encoding Variational Bayes https://arxiv.org/pdf/1312.6114.pdf
+- Graph Signal Processing: Overview, Challenges and Applications (https://arxiv.org/pdf/1712.00468.pdf)
 
+-  Freeway Network Density Estimation Based On Dynamic Graph
+- Hybrid Automata Model By Using Kalman Filter: (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7530999)
+- Graph Infrastructure Data: http://networkrepository.com/inf.php
+
+Information Theory
+    - http://www.cs.cmu.edu/~venkatg/teaching/ITCS-spr2013/notes/lect-mar19.pdf
+    - http://www.cs.cmu.edu/~venkatg/teaching/ITCS-spr2013/notes/lect-mar21.pdf
+    - https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7031923
+    - https://pdfs.semanticscholar.org/bf88/10d7fa17d4e0ce35e638925e8a69b8d113ed.pdf
+    - https://arxiv.org/pdf/1612.09343.pdf
 Recommended:
 - NetGAN: Generating Graphs via Random Walks (https://arxiv.org/pdf/1803.00816.pdf)
     - NetGAN is able to generate graphs that capture important topological properties of complex
@@ -53,32 +59,14 @@ Networks and Graph Theory:
 - Anomaly detection in the dynamics of web and social networks (https://arxiv.org/pdf/1901.09688.pdf)
 - Streaming Graph Neural Networks (https://arxiv.org/pdf/1810.10627.pdf)
 - GCN-GAN: A Non-linear Temporal Link Prediction Model for Weighted Dynamic Networks (https://arxiv.org/pdf/1901.09165.pdf)
-
 - Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
 
 Other: 
 - SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
 (https://arxiv.org/pdf/1812.01217.pdf)
 - Mixed Membership Stochastic Blockmodels (http://jmlr.csail.mit.edu/papers/volume9/airoldi08a/airoldi08a.pdf)
-- Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)
 
-
-
-
-Modeling Dynamic Graphs (focus on Social Networks)
-    - With and RNN architecture 
-        - Composing GCN as a layer in GAE or GraphRNNs
-    - Train Random walk with GAN (NetGAN)
-    - Interpolation between time sequences 
-    - Interpretability 
-
-Graph Density estimation
-    - of dynamic graphs
-    -  Freeway Network Density Estimation Based On Dynamic Graph
-Hybrid Automata Model By Using Kalman Filter: (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7530999)
-    - Graph Infrastructure Data: http://networkrepository.com/inf.php
-
-Dynamic Graph Data:
+Dynamic Graphs :
     - http://konect.uni-koblenz.de/plots/temporal_distribution
     - http://networkrepository.com/dynamic.php  
     - https://snap.stanford.edu/data/#temporal
@@ -90,8 +78,13 @@ Dynamic Graph Data:
     - http://socialnetworks.mpi-sws.org/data-wosn2009.html
     - BigDND: Big Dynamic Network Data: http://projects.csail.mit.edu/dnd/DBLP/
 
-
-
+Modeling Dynamic Graphs (focus on Social Networks)
+    - With and RNN architecture 
+        - Composing GCN as a layer in GAE or GraphRNNs
+    - Train Random walk with GAN (NetGAN)
+    - Interpolation between time sequences 
+    - Interpretability 
+    - - Streaming Graph Neural Networks (Dynamic Graph NNs) (https://arxiv.org/pdf/1810.10627.pdf)
 
 
 GITHUB LINKS
