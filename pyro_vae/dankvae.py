@@ -12,16 +12,16 @@ import torch_geometric.utils as torch_util
 import torch_scatter
 from pyro.infer import SVI, JitTrace_ELBO, Trace_ELBO
 from pyro.optim import Adam
-from torch import FloatTensor
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import MNISTSuperpixels, Planetoid
-from torch_geometric.nn import ChebConv, GCNConv
+from torch_geometric.nn import ChebConv, GCNConv, SAGEConv
 
 import visdom
 from utils.mnist_cached import MNISTCached as MNIST
 from utils.mnist_cached import setup_data_loaders
 from utils.vae_plots import mnist_test_tsne, plot_llk, plot_vae_samples
 
+torch.set_default_tensor_type('torch.FloatTensor')
 
 # define the PyTorch module that parameterizes the
 # diagonal gaussian distribution q(z|x)
@@ -33,9 +33,13 @@ class Encoder(nn.Module):
         # self.fc21 = nn.Linear(hidden_dim, z_dim)
         # self.fc22 = nn.Linear(hidden_dim, z_dim)
 
-        self.gc1 = GCNConv(n_feat, hidden_dim)
-        self.gc2_mu = GCNConv(hidden_dim, z_dim)
-        self.gc2_sig = GCNConv(hidden_dim, z_dim)        
+        # self.gc1 = GCNConv(n_feat, hidden_dim)
+        # self.gc2_mu = GCNConv(hidden_dim, z_dim)
+        # self.gc2_sig = GCNConv(hidden_dim, z_dim)
+        
+        self.gc1 = SAGEConv(n_feat, hidden_dim)
+        self.gc2_mu = SAGEConv(hidden_dim, z_dim)
+        self.gc2_sig = SAGEConv(hidden_dim, z_dim)             
         # setup the non-linearities
         self.softplus = nn.Softplus()
 
@@ -73,7 +77,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         # setup the two linear transformations used
         self.fc1 = nn.Linear(z_dim, hidden_dim)
-        self.fc21 = nn.Linear(hidden_dim, 89440)
+        self.fc21 = nn.Linear(hidden_dim, 2400)
         # setup the non-linearities
         self.softplus = nn.Softplus()
 
@@ -117,7 +121,9 @@ class VAE(nn.Module):
             # decode the latent code z
             loc_img = self.decoder.forward(z)
             # score against actual images
-            pyro.sample("obs", dist.Bernoulli(loc_img).to_event(1), obs=x.reshape(-1, 89440))
+            print(loc_img.shape)
+            print(x.shape)
+            pyro.sample("obs", dist.Bernoulli(loc_img.reshape(-1, x.shape[0])).to_event(1), obs=x.reshape(-1, x.shape[0]))
             # return the loc so we can visualize it later
             return loc_img
 
@@ -189,8 +195,10 @@ def main(args):
                 x = batch['x'].cuda()
                 adj = batch['edge_index'].cuda()
             else:
-                x = batch['x'].type(torch.FloatTensor)
-                adj = batch['edge_index'].type(torch.FloatTensor)
+                # x = batch['x'].type(torch.LongTensor)
+                # adj = batch['edge_index'].type(torch.LongTensor)
+                x = batch['x']
+                adj = batch['edge_index']
 
             print("got data", type(x))
             inputSize = x.shape[0] * x.shape[1]
@@ -210,26 +218,43 @@ def main(args):
             # initialize loss accumulator
             test_loss = 0.
             # compute the loss over the entire test set
-            for i, (x, _) in enumerate(test_loader):
+            for step, batch in enumerate(test_loader):
+                x, adj = 0, 0
                 # if on GPU put mini-batch into CUDA memory
                 if args.cuda:
-                    x = x.cuda()
+                    x = batch['x'].cuda()
+                    adj = batch['edge_index'].cuda()
+                else:
+                    x  = batch['x']
+                    adj = batch['edge_index']
                 # compute ELBO estimate and accumulate loss
-                test_loss += svi.evaluate_loss(x)
+                print('before evaluating test loss')
+                test_loss += svi.evaluate_loss(x, adj)
+                print('after evaluating test loss')
 
                 # pick three random test images from the first mini-batch and
                 # visualize how well we're reconstructing them
-                if i == 0:
-                    if args.visdom_flag:
-                        plot_vae_samples(vae, vis)
-                        reco_indices = np.random.randint(0, x.shape[0], 3)
-                        for index in reco_indices:
-                            test_img = x[index, :]
-                            reco_img = vae.reconstruct_img(test_img)
-                            vis.image(test_img.reshape(28, 28).detach().cpu().numpy(),
-                                      opts={'caption': 'test image'})
-                            vis.image(reco_img.reshape(28, 28).detach().cpu().numpy(),
-                                      opts={'caption': 'reconstructed image'})
+                # if i == 0:
+                #     if args.visdom_flag:
+                #         plot_vae_samples(vae, vis)
+                #         reco_indices = np.random.randint(0, x.shape[0], 3)
+                #         for index in reco_indices:
+                #             test_img = x[index, :]
+                #             reco_img = vae.reconstruct_img(test_img)
+                #             vis.image(test_img.reshape(28, 28).detach().cpu().numpy(),
+                #                       opts={'caption': 'test image'})
+                #             vis.image(reco_img.reshape(28, 28).detach().cpu().numpy(),
+                #                       opts={'caption': 'reconstructed image'})
+                if args.visdom_flag:
+                    plot_vae_samples(vae, vis)
+                    reco_indices = np.random.randint(0, x.shape[0], 3)
+                    for index in reco_indices:
+                        test_img = x[index, :]
+                        reco_img = vae.reconstruct_img(test_img)
+                        vis.image(test_img.reshape(28, 28).detach().cpu().numpy(),
+                                    opts={'caption': 'test image'})
+                        vis.image(reco_img.reshape(28, 28).detach().cpu().numpy(),
+                                    opts={'caption': 'reconstructed image'})
 
             # report test diagnostics
             normalizer_test = len(test_loader.dataset)
@@ -253,8 +278,8 @@ def get_data():
     lenTrain = len(trainset)
     lenTest = len(testset)
 
-    trainLoader = DataLoader(trainset[:lenTrain//100], batch_size=32, shuffle=False)
-    testloader = DataLoader(testset[:lenTest//100], batch_size=32, shuffle=False)
+    trainLoader = DataLoader(trainset[:lenTrain//125], batch_size=32, shuffle=False)
+    testloader = DataLoader(testset[:lenTest//125], batch_size=32, shuffle=False)
     return trainLoader, testloader
 
 if __name__ == '__main__':
