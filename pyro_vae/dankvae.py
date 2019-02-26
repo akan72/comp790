@@ -33,20 +33,20 @@ class Encoder(nn.Module):
         # self.fc21 = nn.Linear(hidden_dim, z_dim)
         # self.fc22 = nn.Linear(hidden_dim, z_dim)
 
-        # self.gc1 = GCNConv(n_feat, hidden_dim)
-        # self.gc2_mu = GCNConv(hidden_dim, z_dim)
-        # self.gc2_sig = GCNConv(hidden_dim, z_dim)
+        self.gc1 = GCNConv(n_feat, hidden_dim)
+        self.gc2_mu = GCNConv(hidden_dim, z_dim)
+        self.gc2_sig = GCNConv(hidden_dim, z_dim)
         
-        self.gc1 = SAGEConv(n_feat, hidden_dim)
-        self.gc2_mu = SAGEConv(hidden_dim, z_dim)
-        self.gc2_sig = SAGEConv(hidden_dim, z_dim)             
+        # self.gc1 = SAGEConv(n_feat, hidden_dim)
+        # self.gc2_mu = SAGEConv(hidden_dim, z_dim)
+        # self.gc2_sig = SAGEConv(hidden_dim, z_dim)             
         # setup the non-linearities
         self.softplus = nn.Softplus()
 
     def forward(self, x, adj):
         # define the forward computation on the image x
         # first shape the mini-batch to have pixels in the rightmost dimension
-        print("x", x.shape, type(x))
+        # print("x", x.shape, type(x))
         #x = x.reshape(-1, 89440)
 
         x = F.relu(self.gc1(x, adj))
@@ -77,7 +77,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         # setup the two linear transformations used
         self.fc1 = nn.Linear(z_dim, hidden_dim)
-        self.fc21 = nn.Linear(hidden_dim, 2400)
+        self.fc21 = nn.Linear(hidden_dim, 75)
         # setup the non-linearities
         self.softplus = nn.Softplus()
 
@@ -121,8 +121,8 @@ class VAE(nn.Module):
             # decode the latent code z
             loc_img = self.decoder.forward(z)
             # score against actual images
-            print(loc_img.shape)
-            print(x.shape)
+            # print(loc_img.shape)
+            # print(x.shape)
             pyro.sample("obs", dist.Bernoulli(loc_img.reshape(-1, x.shape[0])).to_event(1), obs=x.reshape(-1, x.shape[0]))
             # return the loc so we can visualize it later
             return loc_img
@@ -152,8 +152,6 @@ def main(args):
     # clear param store
     pyro.clear_param_store()
 
-
-
     ### SETUP
 
     # train_loader, test_loader = setup_data_loaders(MNIST, use_cuda=args.cuda, batch_size=256)
@@ -179,7 +177,7 @@ def main(args):
 
     train_elbo = []
     test_elbo = []
-    print("before training loop")
+    # print("before training loop")
     # training loop
     for epoch in range(args.num_epochs):
         # initialize loss accumulator
@@ -187,7 +185,7 @@ def main(args):
         # do a training epoch over each mini-batch x returned
         # by the data loader
 
-        print("before batching loop")
+        # print("before batching loop")
         for step, batch in enumerate(train_loader):
             x, adj = 0, 0
             # if on GPU put mini-batch into CUDA memory
@@ -200,13 +198,13 @@ def main(args):
                 x = batch['x']
                 adj = batch['edge_index']
 
-            print("got data", type(x))
+            # print("got data", type(x))
             inputSize = x.shape[0] * x.shape[1]
 
             # do ELBO gradient and accumulate loss
-            print("before svi.step")
+            # print("before svi.step")
             epoch_loss += svi.step(x, adj)
-            print("after svi.step()")
+            # print("after svi.step()")
 
         # report training diagnostics
         normalizer_train = len(train_loader.dataset)
@@ -214,7 +212,8 @@ def main(args):
         train_elbo.append(total_epoch_loss_train)
         print("[epoch %03d]  average training loss: %.4f" % (epoch, total_epoch_loss_train))
 
-        if epoch % args.test_frequency == 0:
+        if True:
+        # if epoch % args.test_frequency == 0:
             # initialize loss accumulator
             test_loss = 0.
             # compute the loss over the entire test set
@@ -228,9 +227,9 @@ def main(args):
                     x  = batch['x']
                     adj = batch['edge_index']
                 # compute ELBO estimate and accumulate loss
-                print('before evaluating test loss')
+                # print('before evaluating test loss')
                 test_loss += svi.evaluate_loss(x, adj)
-                print('after evaluating test loss')
+                # print('after evaluating test loss')
 
                 # pick three random test images from the first mini-batch and
                 # visualize how well we're reconstructing them
@@ -247,7 +246,7 @@ def main(args):
                 #                       opts={'caption': 'reconstructed image'})
                 if args.visdom_flag:
                     plot_vae_samples(vae, vis)
-                    reco_indices = np.random.randint(0, x.shape[0], 3)
+                    reco_indices = np.random.randint(0, x.shape[0], 3)  
                     for index in reco_indices:
                         test_img = x[index, :]
                         reco_img = vae.reconstruct_img(test_img)
@@ -266,6 +265,18 @@ def main(args):
             mnist_test_tsne(vae=vae, test_loader=test_loader)
             plot_llk(np.array(train_elbo), np.array(test_elbo))
 
+    # with SAGE Conv
+    # torch.save(model.state_dict(), 'vae_mnist002.pt')
+    
+    # # With GCN Conv
+    # torch.save({
+    #     'epoch': epoch,
+    #     'model_state_dict': vae.state_dict(),
+    #     'optimzier_state_dict': optimizer.get_state(),
+    #     'train_loss': total_epoch_loss_train,
+    #     'test_loss': total_epoch_loss_test
+    #     }, 'vae_mnist003.pt')
+
     return vae
 
 
@@ -278,17 +289,17 @@ def get_data():
     lenTrain = len(trainset)
     lenTest = len(testset)
 
-    trainLoader = DataLoader(trainset[:lenTrain//125], batch_size=32, shuffle=False)
-    testloader = DataLoader(testset[:lenTest//125], batch_size=32, shuffle=False)
+    trainLoader = DataLoader(trainset[:lenTrain//250], batch_size=1, shuffle=False)
+    testloader = DataLoader(testset[:lenTest//250], batch_size=1, shuffle=False)
     return trainLoader, testloader
 
 if __name__ == '__main__':
     assert pyro.__version__.startswith('0.3.1')
     # parse command line arguments
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', default=5, type=int, help='number of training epochs')
+    parser.add_argument('-n', '--num-epochs', default=25, type=int, help='number of training epochs')
     parser.add_argument('-tf', '--test-frequency', default=5, type=int, help='how often we evaluate the test set')
-    parser.add_argument('-lr', '--learning-rate', default=1.0e-3, type=float, help='learning rate')
+    parser.add_argument('-lr', '--learning-rate', default=2.0e-3, type=float, help='learning rate')
     parser.add_argument('--cuda', action='store_true', default=False, help='whether to use cuda')
     parser.add_argument('--jit', action='store_true', default=False, help='whether to use PyTorch jit')
     parser.add_argument('-visdom', '--visdom_flag', action="store_true", help='Whether plotting in visdom is desired')
@@ -296,3 +307,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     model = main(args)
+

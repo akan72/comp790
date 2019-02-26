@@ -152,8 +152,6 @@ def main(args):
     # clear param store
     pyro.clear_param_store()
 
-
-
     ### SETUP
 
     # train_loader, test_loader = setup_data_loaders(MNIST, use_cuda=args.cuda, batch_size=256)
