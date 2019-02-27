@@ -260,21 +260,21 @@ def main(args):
 def get_data():
     dataset = args.name
     path = '../data/geometric/MNIST'
-    trainset = MNISTSuperpixels(path, dataset)
-    testset = MNISTSuperpixels(path, dataset)
+    trainset = MNISTSuperpixels(path, train=True)
+    testset = MNISTSuperpixels(path, train=False)
 
     lenTrain = len(trainset)
     lenTest = len(testset)
 
-    trainLoader = DataLoader(trainset[:lenTrain//250], batch_size=1, shuffle=False)
-    testloader = DataLoader(testset[:lenTest//250], batch_size=1, shuffle=False)
+    trainLoader = DataLoader(trainset[:lenTrain//50], batch_size=1, shuffle=False)
+    testloader = DataLoader(testset[:lenTest//50], batch_size=1, shuffle=False)
     return trainLoader, testloader
 
 if __name__ == '__main__':
     assert pyro.__version__.startswith('0.3.1')
     # parse command line arguments
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', default=1, type=int, help='number of training epochs')
+    parser.add_argument('-n', '--num-epochs', default=50, type=int, help='number of training epochs')
     parser.add_argument('-tf', '--test-frequency', default=5, type=int, help='how often we evaluate the test set')
     parser.add_argument('-lr', '--learning-rate', default=2.0e-3, type=float, help='learning rate')
     
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     parser.add_argument('--time', default=int(time.time()), help="Current system time")
 
     parser.add_argument('--name', default='Mnist', help="Name of the dataset")
-    parser.add_argument('--save', default=False, help="Whether to save the trained model")
+    parser.add_argument('--save', default=True, help="Whether to save the trained model")
 
     args = parser.parse_args()
 

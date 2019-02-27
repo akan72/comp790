@@ -17,22 +17,25 @@ from torch_geometric.nn import ChebConv, GCNConv, SAGEConv
 def get_data():
     dataset = 'Mnist'
     path = '../data/geometric/MNIST'
-    trainset = MNISTSuperpixels(path, dataset)
-    testset = MNISTSuperpixels(path, dataset)
+    trainset = MNISTSuperpixels(root=path, train=True)
+    testset = MNISTSuperpixels(root=path, train=False)
 
     lenTrain = len(trainset)
     lenTest = len(testset)
 
-    trainLoader = DataLoader(trainset[:lenTrain//125], batch_size=32, shuffle=False)
-    testloader = DataLoader(testset[:lenTest//125], batch_size=32, shuffle=False)
+    trainLoader = DataLoader(trainset[:lenTrain//125], batch_size=1, shuffle=False)
+    testloader = DataLoader(testset[:lenTest//125], batch_size=1,  shuffle=False)
     
     return trainLoader, testloader
 
+
 train, test = get_data()
 
-for step, batch in enumerate(train):
-    x = batch['x']
-    adj = batch['edge_index']
+print(len(train), len(test))
 
-    print(x.shape, type(x))
-    print(adj.shape, type(adj))
+# for step, batch in enumerate(train):
+#     x = batch['x']
+#     adj = batch['edge_index']
+
+#     print(x.shape, type(x))
+#     print(adj.shape, type(adj))
