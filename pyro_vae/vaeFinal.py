@@ -11,11 +11,13 @@ import torch.nn.functional as F
 import torch_geometric.transforms as T
 import torch_geometric.utils as torch_util
 import torch_scatter
-from pyro.infer import SVI, JitTrace_ELBO, Trace_ELBO
-from pyro.optim import Adam
+
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import MNISTSuperpixels, Planetoid
 from torch_geometric.nn import ChebConv, GCNConv, SAGEConv
+
+from pyro.infer import SVI, JitTrace_ELBO, Trace_ELBO
+from pyro.optim import Adam
 
 import visdom
 from utils.mnist_cached import MNISTCached as MNIST
@@ -29,46 +31,32 @@ torch.set_default_tensor_type('torch.FloatTensor')
 class Encoder(nn.Module):
     def __init__(self, n_feat, z_dim, hidden_dim):
         super(Encoder, self).__init__()
-        # setup the three linear transformations used
-        # self.fc1 = nn.Linear(89440, hidden_dim)
-        # self.fc21 = nn.Linear(hidden_dim, z_dim)
-        # self.fc22 = nn.Linear(hidden_dim, z_dim)
 
+        # Set up thhe Graph convolutional layers 
         self.gc1 = GCNConv(n_feat, hidden_dim)
         self.gc2_mu = GCNConv(hidden_dim, z_dim)
         self.gc2_sig = GCNConv(hidden_dim, z_dim)
         
         # self.gc1 = SAGEConv(n_feat, hidden_dim)
         # self.gc2_mu = SAGEConv(hidden_dim, z_dim)
-        # self.gc2_sig = SAGEConv(hidden_dim, z_dim)             
-        # setup the non-linearities
+        # self.gc2_sig = SAGEConv(hidden_dim, z_dim)    
+        
+        # Setup for non-linearities
         self.softplus = nn.Softplus()
+        self.relu = torch.nn.ReLU()
 
     def forward(self, x, adj):
-        # define the forward computation on the image x
-        # first shape the mini-batch to have pixels in the rightmost dimension
-        # print("x", x.shape, type(x))
-        #x = x.reshape(-1, 89440)
-
-        x = F.relu(self.gc1(x, adj))
-        mu = self.gc2_mu(x, adj)
-        log_sig = self.gc2_sig(x, adj)
-
-        # z_loc = self.softplus(x)
-        z_loc = mu
-        z_scale = torch.exp(log_sig)
+        # define the forward computation on the adjacency matrix for each graph and its features, x 
     
-        # hidden = self.softplus(self.fc1(x))
-        # # each of size batch_size x z_dim
-        # z_loc = self.fc21(hidden)
-        # z_scale = torch.exp(self.fc22(hidden))
-        return z_loc, z_scale
+        # x = F.relu(self.gc1(x, adj))
+        # z_loc = self.gc2_mu(x, adj)
+        # z_scale = torch.exp(self.gc2_sig(x, adj))
 
-        
-    #     x = F.relu(self.gc1(x, adj))
-    #     x = F.dropout(x, self.dropout, training=self.training)
-    #     mu = self.gc2_mu(x, adj)
-    #     log_sig = self.gc2_sig(x, adj)
+        hidden = self.softplus(self.gc1(x, adj))
+        z_loc = self.gc2_mu(hidden, adj)
+        z_scale = torch.exp(self.gc2_sig(hidden, adj))
+
+        return z_loc, z_scale
 
 
 # define the PyTorch module that parameterizes the
@@ -76,7 +64,7 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, z_dim, hidden_dim):
         super(Decoder, self).__init__()
-        # setup the two linear transformations used
+        # setup the two linear transformations used for the decoder 
         self.fc1 = nn.Linear(z_dim, hidden_dim)
         self.fc21 = nn.Linear(hidden_dim, 75)
         # setup the non-linearities
@@ -85,9 +73,10 @@ class Decoder(nn.Module):
     def forward(self, z):
         # define the forward computation on the latent z
         # first compute the hidden units
+
         hidden = self.softplus(self.fc1(z))
+
         # return the parameter for the output Bernoulli
-        # each is of size batch_size x 784
         loc_img = torch.sigmoid(self.fc21(hidden))
         return loc_img
 
@@ -121,9 +110,8 @@ class VAE(nn.Module):
             z = pyro.sample("latent", dist.Normal(z_loc, z_scale).to_event(1))
             # decode the latent code z
             loc_img = self.decoder.forward(z)
-            # score against actual images
-            # print(loc_img.shape)
-            # print(x.shape)
+            # score against actual graphs
+
             pyro.sample("obs", dist.Bernoulli(loc_img.reshape(-1, x.shape[0])).to_event(1), obs=x.reshape(-1, x.shape[0]))
             # return the loc so we can visualize it later
             return loc_img
@@ -139,7 +127,7 @@ class VAE(nn.Module):
             pyro.sample("latent", dist.Normal(z_loc, z_scale).to_event(1))
 
     # define a helper function for reconstructing images
-    def reconstruct_img(self, x, adj):
+    def reconstruct_graph(self, x, adj):
         # encode image x
         z_loc, z_scale = self.encoder(x, adj)
         # sample in latent space
@@ -154,9 +142,6 @@ def main(args):
     pyro.clear_param_store()
 
     ### SETUP
-
-    # train_loader, test_loader = setup_data_loaders(MNIST, use_cuda=args.cuda, batch_size=256)
-
     train_loader, test_loader = get_data()
 
     # setup the VAE
@@ -178,15 +163,13 @@ def main(args):
 
     train_elbo = []
     test_elbo = []
-    # print("before training loop")
-    # training loop
+
     for epoch in range(args.num_epochs):
         # initialize loss accumulator
         epoch_loss = 0.
         # do a training epoch over each mini-batch x returned
         # by the data loader
 
-        # print("before batching loop")
         for step, batch in enumerate(train_loader):
             x, adj = 0, 0
             # if on GPU put mini-batch into CUDA memory
@@ -194,18 +177,12 @@ def main(args):
                 x = batch['x'].cuda()
                 adj = batch['edge_index'].cuda()
             else:
-                # x = batch['x'].type(torch.LongTensor)
-                # adj = batch['edge_index'].type(torch.LongTensor)
+
                 x = batch['x']
                 adj = batch['edge_index']
 
-            # print("got data", type(x))
             inputSize = x.shape[0] * x.shape[1]
-
-            # do ELBO gradient and accumulate loss
-            # print("before svi.step")
             epoch_loss += svi.step(x, adj)
-            # print("after svi.step()")
 
         # report training diagnostics
         normalizer_train = len(train_loader.dataset)
@@ -245,12 +222,14 @@ def main(args):
                 #                       opts={'caption': 'test image'})
                 #             vis.image(reco_img.reshape(28, 28).detach().cpu().numpy(),
                 #                       opts={'caption': 'reconstructed image'})
+
+
                 if args.visdom_flag:
                     plot_vae_samples(vae, vis)
                     reco_indices = np.random.randint(0, x.shape[0], 3)  
                     for index in reco_indices:
                         test_img = x[index, :]
-                        reco_img = vae.reconstruct_img(test_img)
+                        reco_img = vae.reconstruct_graph(test_img)
                         vis.image(test_img.reshape(28, 28).detach().cpu().numpy(),
                                     opts={'caption': 'test image'})
                         vis.image(reco_img.reshape(28, 28).detach().cpu().numpy(),
@@ -266,23 +245,20 @@ def main(args):
             mnist_test_tsne(vae=vae, test_loader=test_loader)
             plot_llk(np.array(train_elbo), np.array(test_elbo))
 
-    # with SAGE Conv
-    # torch.save(model.state_dict(), 'vae_mnist002.pt')
-    
-    # With GCN Conv
-    torch.save({
-        'epoch': epoch,
-        'model_state_dict': vae.state_dict(),
-        'optimzier_state_dict': optimizer.get_state(),
-        'train_loss': total_epoch_loss_train,
-        'test_loss': total_epoch_loss_test
-        }, 'vae_mnist'+str(args.time)+'.pt')
+    if args.save:
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': vae.state_dict(),
+            'optimzier_state_dict': optimizer.get_state(),
+            'train_loss': total_epoch_loss_train,
+            'test_loss': total_epoch_loss_test
+            }, 'vae_' + args.name + str(args.time) +'.pt')
 
     return vae
 
 
 def get_data():
-    dataset = 'Mnist'
+    dataset = args.name
     path = '../data/geometric/MNIST'
     trainset = MNISTSuperpixels(path, dataset)
     testset = MNISTSuperpixels(path, dataset)
@@ -298,14 +274,19 @@ if __name__ == '__main__':
     assert pyro.__version__.startswith('0.3.1')
     # parse command line arguments
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', default=50, type=int, help='number of training epochs')
+    parser.add_argument('-n', '--num-epochs', default=1, type=int, help='number of training epochs')
     parser.add_argument('-tf', '--test-frequency', default=5, type=int, help='how often we evaluate the test set')
     parser.add_argument('-lr', '--learning-rate', default=2.0e-3, type=float, help='learning rate')
+    
     parser.add_argument('--cuda', action='store_true', default=False, help='whether to use cuda')
     parser.add_argument('--jit', action='store_true', default=False, help='whether to use PyTorch jit')
     parser.add_argument('-visdom', '--visdom_flag', action="store_true", help='Whether plotting in visdom is desired')
     parser.add_argument('-i-tsne', '--tsne_iter', default=100, type=int, help='epoch when tsne visualization runs')
     parser.add_argument('--time', default=int(time.time()), help="Current system time")
+
+    parser.add_argument('--name', default='Mnist', help="Name of the dataset")
+    parser.add_argument('--save', default=False, help="Whether to save the trained model")
+
     args = parser.parse_args()
 
     model = main(args)
