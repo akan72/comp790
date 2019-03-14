@@ -1,14 +1,12 @@
 .vscode
-data/raw*
-data/processed*
+
 data/old*
 data/temp*
-data/youtubeGrowth
-data/enronEmployees
-data/facebookLinks
-data/mathOverflow/dyngraph.txt
-data/geometric
-geometric/
+data/geometric/MNIST
+data/geometric/ENZYMES
+data/paperData
+old/
+impl/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

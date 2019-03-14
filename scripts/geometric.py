@@ -38,7 +38,10 @@ from torch_geometric.data import InMemoryDataset
 from torch_geometric.datasets import MNISTSuperpixels, TUDataset, ModelNet
 
 
-dataset  = MNISTSuperpixels(root='../data/MNIST')
+dataset = 'Mnist'
+path = '../data/geometric/MNIST'
+
+dataset = MNISTSuperpixels(path, train=True)
 split = int(len(dataset) * .9)
 
 # Randomly permute dataset before splitting

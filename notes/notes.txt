@@ -1,0 +1,97 @@
+PAPERS TO READ
+
+Main Papers:
+- Deep Learning on Graphs Survey (https://arxiv.org/pdf/1812.04202.pdf)
+    - Order invariance. A critical requirement for the graph readout operation is that the operation should be invariant to the order
+of nodes, i.e. if we change the indices of nodes and edges using
+a bijective function between two vertex sets, representation of the
+whole graph should not change. 
+- Graph Neural Networks: A Review of Methods and Applications (https://arxiv.org/pdf/1812.08434.pdf)
+- GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
+- Learning Graph Neighborhoods from LSTMs (https://arxiv.org/pdf/1611.06882.pdf)
+- Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
+- Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)
+- GraphCNN Classification (https://arxiv.org/pdf/1609.02907.pdf)
+- Graph Model Selection using Maximu- DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
+m Likelihood (http://homepages.inf.ed.ac.uk/rsanthan/Papers/BezakovaKalaiSanthanam.pdf)
+- Thesis (Deep Learning on Attributed Graphs): https://arxiv.org/pdf/1901.08296.pdf
+- Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
+
+- Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
+- Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
+- Auto-Encoding Variational Bayes https://arxiv.org/pdf/1312.6114.pdf
+
+
+
+Information Theory
+    - http://www.cs.cmu.edu/~venkatg/teaching/ITCS-spr2013/notes/lect-mar19.pdf
+    - http://www.cs.cmu.edu/~venkatg/teaching/ITCS-spr2013/notes/lect-mar21.pdf
+    - https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7031923
+    - https://pdfs.semanticscholar.org/bf88/10d7fa17d4e0ce35e638925e8a69b8d113ed.pdf
+    - https://arxiv.org/pdf/1612.09343.pdf
+Recommended:
+- NetGAN: Generating Graphs via Random Walks (https://arxiv.org/pdf/1803.00816.pdf)
+    - NetGAN is able to generate graphs that capture important topological properties of complex
+        networks, such as community structure and degree distribution, without having to manually specify any of them.
+        Moreover, our proposed model shows strong generalization
+        properties, as highlighted by its competitive link prediction
+        performance on a number of datasets. NetGAN can also
+        be used for generating graphs with continuously varying
+        characteristics using latent space interpolation. Combined
+        our results provide strong evidence that implicit generative
+        models for graphs are well-suited for capturing the complex
+        nature of real-world networks.
+        
+- GraphGAN: Graph Representation Learning with Generative Adversarial Nets (https://arxiv.org/pdf/1711.08267.pdf)
+- GraphSGAN (https://arxiv.org/pdf/1809.00130.pdf)
+
+Networks and Graph Theory:
+- Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Network Comparison (https://www.ucl.ac.uk/bigdata-theory/wp-content/uploads/2015/03/Gesine-Reinert.pdf)
+- Algorithms for Graph Similarity and Subgraph Matching (https://people.eecs.berkeley.edu/~aramdas/reports/DBreport.pd)f
+- Graph Evolution: Densification and Shrinking Diameters (https://www.cs.cmu.edu/~jure/pubs/powergrowth-tkdd.pdf)
+- Random Walks on Graphs: A Survey (http://www.cs.cmu.edu/~15859n/RelatedWork/random-walks-on-graphs.pdf)
+- Anomaly detection in the dynamics of web and social networks (https://arxiv.org/pdf/1901.09688.pdf)
+- Streaming Graph Neural Networks (https://arxiv.org/pdf/1810.10627.pdf)
+- GCN-GAN: A Non-linear Temporal Link Prediction Model for Weighted Dynamic Networks (https://arxiv.org/pdf/1901.09165.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
+
+Other: 
+- SET CROSS ENTROPY: LIKELIHOOD-BASED PERMUTATION INVARIANT LOSS FUNCTION FOR PROBABILITY DISTRIBUTIONS
+(https://arxiv.org/pdf/1812.01217.pdf)
+- Mixed Membership Stochastic Blockmodels (http://jmlr.csail.mit.edu/papers/volume9/airoldi08a/airoldi08a.pdf)
+
+Dynamic Graphs :
+    - http://konect.uni-koblenz.de/plots/temporal_distribution
+    - http://networkrepository.com/dynamic.php  
+    - https://snap.stanford.edu/data/#temporal
+    - http://networkrepository.com/tscc.php
+    - https://www.eecs.wsu.edu/~yyao/StreamingGraphs.html
+        - https://www.eecs.wsu.edu/~yyao/DirectedStudyI/Datasets/Facebook/ReadMe.txt
+    - http://www-personal.umich.edu/~mejn/netdata/
+    - http://networkrepository.com/inf.php
+    - http://socialnetworks.mpi-sws.org/data-wosn2009.html
+    - BigDND: Big Dynamic Network Data: http://projects.csail.mit.edu/dnd/DBLP/
+
+Modeling Dynamic Graphs (focus on Social Networks)
+    - With and RNN architecture 
+        - Composing GCN as a layer in GAE or GraphRNNs
+    - Train Random walk with GAN (NetGAN)
+    - Interpolation between time sequences 
+    - Interpretability 
+    - - Streaming Graph Neural Networks (Dynamic Graph NNs) (https://arxiv.org/pdf/1810.10627.pdf)
+    -- Graph Infrastructure Data: http://networkrepository.com/inf.php
+
+
+
+GITHUB LINKS
+
+https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/simple_autoencoder.py#L13
+https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/Variational_autoencoder.py
+https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/conv_autoencoder.py
+https://github.com/pytorch/examples/blob/master/dcgan/main.py
+
+https://github.com/eriklindernoren/PyTorch-GAN#gan
+https://medium.com/@devnag/generative-adversarial-networks-gans-in-50-lines-of-code-pytorch-e81b79659e3f
+https://github.com/devnag/pytorch-generative-adversarial-networks/blob/master/gan_pytorch.py

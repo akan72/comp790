@@ -1,0 +1,44 @@
+Survey Papers
+- Deep Learning on Graphs Survey (https://arxiv.org/pdf/1812.04202.pdf)
+    - Order invariance. A critical requirement for the graph readout operation is that the operation should be invariant to the order
+of nodes, i.e. if we change the indices of nodes and edges using
+a bijective function between two vertex sets, representation of the
+whole graph should not change. 
+- Graph Neural Networks: A Review of Methods and Applications (https://arxiv.org/pdf/1812.08434.pdf)
+
+Deep Learning on Graphs
+- GraphCNN Classification (https://arxiv.org/pdf/1609.02907.pdf)
+- Modeling Relational Data with Graph Convolutional Networks (https://arxiv.org/pdf/1703.06103.pdf)
+- GraphRNN (https://arxiv.org/pdf/1802.08773.pdf)
+- node2vec (https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)
+- Learning Graph Neighborhoods from LSTMs (https://arxiv.org/pdf/1611.06882.pdf)
+- Representation Learning on Graphs: Methods and Applications (https://arxiv.org/pdf/1709.05584.pdf)
+- DeepWalk: Online Learning of Social Representations (https://arxiv.org/pdf/1403.6652.pdf)
+- Learning Deep Generative Models of Graphs (https://arxiv.org/pdf/1803.03324.pdf)
+
+- Graph Model Selection using Maximum Likelihood (http://homepages.inf.ed.ac.uk/rsanthan/Papers/BezakovaKalaiSanthanam.pdf)
+- DeepSets (https://arxiv.org/pdf/1703.06114.pdf)
+- Thesis (Deep Learning on Attributed Graphs): https://arxiv.org/pdf/1901.08296.pdf
+- Graph Decompositions Analysis and Comparison for Cohesive Subgraphs Detection (https://arxiv.org/pdf/1604.08507.pdf)
+- Anomaly detection in the dynamics of web and social networks (https://arxiv.org/pdf/1901.09688.pdf)
+- Adversarially Regularized Graph Autoencoder for Graph Embedding (https://arxiv.org/pdf/1802.04407.pdf)
+
+Variational Inference 
+- Variational Graph Auto-Encoders (https://arxiv.org/pdf/1611.07308.pdf)
+- Variational Inference: A Review for Statisticians (https://arxiv.org/pdf/1601.00670.pdf)
+- Auto-Encoding Variational Bayes https://arxiv.org/pdf/1312.6114.pdf
+- Auxilliary Deep Generative Models https://arxiv.org/pdf/1602.05473.pdf
+- Improved Variational Inference with Inverse Autoregressive Flow (https://arxiv.org/pdf/1606.04934.pdf)
+
+Autoregressive Models
+- TANs http://proceedings.mlr.press/v80/oliva18a/oliva18a.pdf
+- Variational Inferencing with Normalizing Flows https://arxiv.org/pdf/1505.05770.pdf
+- CATEGORICAL REPARAMETERIZATION WITH GUMBEL-SOFTMAX (https://arxiv.org/pdf/1611.01144.pdf)
+
+
+SNAP Links:
+
+- http://snap.stanford.edu/proj/embeddings-www/files/nrltutorial-part1-embeddings.pdf
+- http://snap.stanford.edu/proj/embeddings-www/files/nrltutorial-part2-gnns.pdf
+- http://snap.stanford.edu/proj/embeddings-www/files/nrltutorial-part3-applications.pdf
+- https://snap.stanford.edu/node2vec/
