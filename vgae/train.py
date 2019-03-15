@@ -18,7 +18,7 @@ from preprocessing import mask_test_edges, preprocess_graph
 
 def main(args):
     """ Train GAE """
-    print("Using {} dataset".format(args.dataset_str))
+    print("Using {} dataset".format(args.dataset_str.upper()))
     # Load data
     np.random.seed(1)
     adj, features = new_load_data(args.dataset_str)
@@ -106,9 +106,8 @@ if __name__ == '__main__':
     args = dotdict()
     args.seed        = 2
     args.dropout     = 0.0
-    args.num_epochs  = 100
-    # args.dataset_str = 'cora'
-    args.dataset_str = 'cora'
+    args.num_epochs  = 50
+    args.dataset_str = 'citeseer'
     args.test_freq   = 10
     args.lr          = 0.01
 

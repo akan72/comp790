@@ -1,9 +1,12 @@
 .vscode
 
+requirements.txt
 data/old*
 data/temp*
 data/geometric/MNIST
 data/geometric/ENZYMES
+data/geometric/CITESEER
+data/geometric/PUBMED
 data/paperData
 old/
 impl/

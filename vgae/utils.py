@@ -118,30 +118,34 @@ def load_data(dataset):
 
 
 def new_load_data(dataset):
-    if dataset == 'cora':
-        path = '../data/geometric/CORA'
+    if dataset.upper() == 'CITESEER':
+        return load_data('citeseer')
+        
+    planetoids = ['CORA', 'PUBMED']
+
+    if dataset.upper() in planetoids:
+        path = '../data/geometric/' + dataset.upper()
         train_loader = Planetoid(path, dataset)
-        
         dataset = train_loader[0]
-        
-#         test_idx_range = np.nonzero(dataset['test_mask'])        
-        
-        allx = dataset['x'][~dataset.test_mask]
-        tx = dataset['x'][dataset.test_mask]
-        features = sp.vstack((allx, tx)).tolil()
-        features = torch.FloatTensor(np.array(features.todense()))
-        
-        edgeList = np.array(dataset['edge_index'].transpose(1, 0))
-        edgeList = list(map(tuple, edgeList))
-        
-        d = defaultdict(list)
-        for k, v in edgeList:
-            d[k].append(v)
-            
-        
-        adj = nx.adjacency_matrix(nx.from_dict_of_lists(d))
-        
-        return adj, features
+
+
+    allx = dataset['x'][~dataset.test_mask]
+    tx = dataset['x'][dataset.test_mask]
+
+    features = sp.vstack((allx, tx)).tolil()
+    features = torch.FloatTensor(np.array(features.todense()))
+
+    edgeList = np.array(dataset['edge_index'].transpose(1, 0))
+    edgeList = list(map(tuple, edgeList))
+
+    d = defaultdict(list)
+    for k, v in edgeList:
+        d[k].append(v)
+
+
+    adj = nx.adjacency_matrix(nx.from_dict_of_lists(d))
+
+    return adj, features
 
 
 # Subsample sparse variables
