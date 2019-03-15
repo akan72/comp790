@@ -1,12 +1,14 @@
 # TODO: Implement Encoder using PyTorch Geometric version of GCN layers 
 # TODO: Experiment with sampling from other distributions 
-# TODO: Implemenet custom loss function 
+# TODO: Implement custom loss function 
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pyro
 import pyro.distributions as dist
+
+from torch_geometric.nn import GCNConv
 
 from layers import GraphConvolution
 from utils import get_subsampler
@@ -21,11 +23,33 @@ class GCNEncoder(nn.Module):
         self.gc1 = GraphConvolution(n_feat, n_hid)
         self.gc2_mu = GraphConvolution(n_hid, n_latent)
         self.gc2_sig = GraphConvolution(n_hid, n_latent)
+        # self.gc1 = GCNConv(n_feat, n_hid)
+        # self.gc2_mu = GCNConv(n_hid, n_latent)
+        # self.gc2_sig = GCNConv(n_hid, n_latent)
         self.dropout = dropout
 
 
     def forward(self, x, adj):
         # First layer shared between mu/sig layers
+
+        # print('x  : ', x, type(x), x.shape)
+        # print('adj: ', adj._indices(), type(adj._indices()), adj._indices().shape)
+
+        # # x  : tensor([[0., 0., 0.,  ..., 0., 0., 0.],
+        # # [0., 0., 0.,  ..., 0., 0., 0.],
+        # # [0., 0., 0.,  ..., 0., 0., 0.],
+        # # ...,
+        # # [0., 0., 0.,  ..., 0., 0., 0.],
+        # # [0., 0., 0.,  ..., 0., 0., 0.],
+        # # [0., 0., 0.,  ..., 0., 0., 0.]]) torch.Size([2708, 1433])
+
+        # # adj: tensor([[   0,    0,    0,  ..., 2707, 2707, 2707],
+        # # [ 633, 1862, 2582,  ...,  598, 1473, 2706]]) torch.Size([2, 10556])
+
+        # x = x._indices()
+        # adj = adj._indices()
+
+
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         mu = self.gc2_mu(x, adj)
