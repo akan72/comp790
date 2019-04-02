@@ -1,4 +1,4 @@
-from pyro.distributions import Bernoulli
+from pyro.distributions import Bernoulli, Gumbel, Distribution
 from torch.distributions.utils import broadcast_all
 from torch.nn.functional import binary_cross_entropy_with_logits
 
@@ -17,3 +17,9 @@ class WeightedBernoulli(Bernoulli):
             self._validate_sample(value)
         logits, value = broadcast_all(self.logits, value)
         return -binary_cross_entropy_with_logits(logits, value, reduction='none', pos_weight=self.weight)
+
+class GumbelSoftmax(Distribution):
+    def __init__(self, *args, **kwargs):
+        pass
+    def log_prob(self, value):
+        pass 

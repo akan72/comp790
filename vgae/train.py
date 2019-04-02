@@ -20,7 +20,7 @@ def main(args):
     """ Train GAE """
     print("Using {} dataset".format(args.dataset_str.upper()))
     # Load data
-    np.random.seed(1)
+    np.random.seed(args.seed)
     adj, features = new_load_data(args.dataset_str)
     # adj, features = load_data(args.dataset_str)
     N, D = features.shape
@@ -74,7 +74,7 @@ def main(args):
 
         results['accuracy_train'].append(accuracy)
         results['roc_train'].append(roc_curr)
-        results['ap_train'].append(ap_curr)
+        results['ap_train'].append(ap_curr) 
 
         print("Epoch:", '%04d' % (epoch + 1),
               "train_loss=", "{:.5f}".format(normalized_loss),
@@ -103,10 +103,10 @@ def main(args):
 
 if __name__ == '__main__':
 
-    args = dotdict()
-    args.seed        = 2
+    args = dotdict()    
+    args.seed        = 1
     args.dropout     = 0.0
-    args.num_epochs  = 50
+    args.num_epochs  = 200
     args.dataset_str = 'cora'
     args.test_freq   = 10
     args.lr          = 0.01

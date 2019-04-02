@@ -1,0 +1,19 @@
+Next Steps:
+- Gumbel Softmax for scoring instead of Weighted Bernoulli Distribution 
+- Overload the current pyro Loss function in order to utilize a different loss metric than than the currently used Trace_ELBO() loss function. We are interested 
+to see how the  L2 loss and Wasserstein/Earth Mover's Distance perform in this setting.  
+- Graph ordering important for underlying semantic of some of our dataests (MNIST, etc)
+- See how our model fares on some of the more canonical graph generation benchmarks, for feature-less graphs,
+the X matrix can simply be replaceed with the identity matrix. 
+- Hierarchicial autoencoder with autoreressive posterios 
+
+
+Monti, F., Boscaini, D., Masci, J., Rodola, E., Svoboda, J., Bronstein, M.M. Geometric Deep Learning on Graphs and Manifolds Using Mixture Model CNNs. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2017.
+Sen, P., Namata, G., Bilgic, M., Getoor, L., Ballagher, B., Eliassi-Rad, T. Collective Classification in Network Data. . AI magazine, 29(3):93, 2008.
+Yang, Z., Cohen, W. W., & Salakhutdinov, R. Revisiting Semi-Supervised Learning with Graph Embeddings. In Proceedings of the 33rd Internatioanl Conference on Machine Learning (ICML), 2016.
+Hamilton, W. L., Ying, R., & Leskovec, J. Representation Learning on Graphs: Methods and Application. In IEEE Data Engineering Bulletin, 2017.
+Agrawal, R., de Alfaro, L., & Polychronopoulos, V. Learning From Graph Neighborhoods Using LSTMs. Technical Report UCSC-SOE, 2016.
+
+
+Variational Inference: ELBO≡Eqϕ(z)[logpθ(x,z)−logqϕ(z
+Figures: MNIST superpixel representation
