@@ -106,7 +106,7 @@ if __name__ == '__main__':
     args = dotdict()    
     args.seed        = 1
     args.dropout     = 0.0
-    args.num_epochs  = 200
+    args.num_epochs  = 50
     args.dataset_str = 'cora'
     args.test_freq   = 10
     args.lr          = 0.01

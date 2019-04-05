@@ -61,8 +61,7 @@ class InnerProductDecoder(nn.Module):
     """Decoder for using inner product for prediction."""
 
     def __init__(self, dropout):
-        super(InnerProductDecoder, self).__
-        init__()
+        super(InnerProductDecoder, self).__init__()
         self.dropout = dropout
         self.sigmoid = nn.Sigmoid()
         self.fudge = 1e-7

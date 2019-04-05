@@ -18,8 +18,16 @@ class WeightedBernoulli(Bernoulli):
         logits, value = broadcast_all(self.logits, value)
         return -binary_cross_entropy_with_logits(logits, value, reduction='none', pos_weight=self.weight)
 
-class GumbelSoftmax(Distribution):
+class GumbelSoftmax(Bernoulli):
     def __init__(self, *args, **kwargs):
-        pass
-    def log_prob(self, value):
+        self.temperature = kwargs.pop('temperature', 1.)
+        super(GumbelSoftmax, self).__init__(*args, **kwargs)
+
+    def log_prob(self, logits):
+        if self._validate_args:
+            self._validate_sample(value)
+        logits, value = broadcast_all(self.logits, value)
+
+        
+
         pass 
