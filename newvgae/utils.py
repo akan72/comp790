@@ -50,5 +50,5 @@ def plot_results(results, path):
 
 results = pkl.load(open('results.p', 'rb'))
 
-plot_results(results, path='../figures/geometric/CORA_RESULTS.png')
+plot_results(results, path='../figures/geometric/PUBMED_RESULTS.png')
 

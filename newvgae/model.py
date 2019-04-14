@@ -41,12 +41,10 @@ class Encoder(torch.nn.Module):
 def main(args, kwargs):
     dataset = args.dataset.upper()
 
-
     if dataset in ['CORA', 'CITESEER', 'PUBMED']:
         path = '../data/geometric/' + dataset
         print('Using {} dataset'.format(dataset))
 
-        
         dataset = Planetoid(path, dataset, T.NormalizeFeatures())
     else:
         sys.exit("You must choose one of the 'Planetoid' datasets (CORA, CITESEER, or PUBMED).")
