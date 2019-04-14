@@ -99,7 +99,7 @@ def main(args):
     print('Test AP score : ' + str(ap_score))
 
     # Plot
-    plot_results(results, args.test_freq, path= '../figures/' + args.dataset_str + "_results.png")
+    plot_results(results, args.test_freq, path= '../figures/pyro/' + args.dataset_str + "_results.png")
 
 if __name__ == '__main__':
 
