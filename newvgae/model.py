@@ -115,7 +115,9 @@ if __name__ == '__main__':
     parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
     parser.add_argument('--dataset', type=str, default='Cora', help='PyTorch Geometric-Loaded Dataset')
     parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--test_freq', type=int, def=10)
+    parser.add_argument('--test_freq', type=int, default=10)
+
+    # add arg for epochs
 
     args, unknown = parser.parse_known_args()
     

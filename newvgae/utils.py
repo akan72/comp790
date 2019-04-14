@@ -11,9 +11,6 @@ import matplotlib.pyplot as plt
 # import torch_geometric.transforms as T
 from collections import defaultdict
 
-
-results = pkl.load(open('results.p', 'rb'))
-
 def plot_results(results, path):
     plt.close('all')
     fig = plt.figure(figsize=(8, 8))
@@ -25,10 +22,8 @@ def plot_results(results, path):
     ax = fig.add_subplot(2, 2, 1)
     ax.plot(x_axis_train, trainingLoss)
     ax.set_ylabel('ELBO Loss')
-    ax.set_title('Training ELBO Loss')
+    ax.set_title('Training ELBO Loss (with KL Regularization)')
     ax.legend(['Train'], loc='upper right')
-
-
 
     # Plotting Training AUC 
     trainingAUC = results['auc_train']
@@ -51,6 +46,9 @@ def plot_results(results, path):
     fig.tight_layout()
     fig.savefig(path)
 
+
+
+results = pkl.load(open('results.p', 'rb'))
 
 plot_results(results, path='../figures/geometric/CORA_RESULTS.png')
 
