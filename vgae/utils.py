@@ -142,7 +142,6 @@ def new_load_data(dataset):
     for k, v in edgeList:
         d[k].append(v)
 
-
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(d))
 
     return adj, features

@@ -1,10 +1,10 @@
 
-# TODO: Modify torch_geo code to get accuracy metric
-# TODO: Get test/train/valid results straight
+# TODO: Modify VGAE.py to get accuracy metric without repeated computations
 # TODO: Look at embeddings and reconstruction
+# TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 # TODO: Graph kernel similarity in loss
 # TODO: Step through Code 
-
+# TODO: Possibly replace get_accuracy with GAE.decode_indices
 
 import os.path as osp
 import sys
@@ -22,6 +22,7 @@ import torch_geometric.transforms as T
 from torch_geometric.nn import GCNConv
 
 from vgae import GAE, VGAE
+from utils import get_adjacency, get_accuracy
 
 # Define forward function of our VGAE Model 
 class Encoder(torch.nn.Module):
@@ -52,6 +53,9 @@ def main(args, kwargs):
 
     data = dataset[0]
 
+    # Store the original adjacnecy matrix (for later calculation of edge prediction accuracy)
+    adj_original = get_adjacency(data)
+
     channels = 16
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -65,13 +69,12 @@ def main(args, kwargs):
 
     # Create defaultdict of lists to be used for keeping running tally of accuracy, AUC, and AP scores
     results = defaultdict(list)
-
     def train():
         model.train()
         optimizer.zero_grad()
-        
-        z = model.encode(x, edge_index)
-        
+
+        # Produces N * channels vector         
+        z = model.encode(x, edge_index)        
         loss = model.recon_loss(z, data.train_pos_edge_index)
         loss = loss + 0.001 * model.kl_loss()
 
@@ -92,36 +95,45 @@ def main(args, kwargs):
         train()
 
         # Run on validation edges
+        # accuracy = get_accuracy(data.val_pos_edge_index, data.val_neg_edge_index, adj_original)
         auc, ap = test(data.val_pos_edge_index, data.val_neg_edge_index)
 
+        # results['accuracy_val'].append(accuracy)
         results['auc_val'].append(auc)
         results['ap_val'].append(ap)
 
         # Print AUC and AP on validation data epochs
         if epoch % 10 == 0:
-            print('Epoch: {:03d}, AUC: {:.4f}, AP: {:.4f}'.format(epoch, auc, ap))
+            print('Val Epoch : {:03d}, AUC: {:.4f}, AP: {:.4f}'.format(epoch, auc, ap))
 
+        # Evalulate on heldout test edges for every epoch which is a multiple of the test_freq argument
         if epoch % args.test_freq == 0:
+            # accuracy = get_accuracy(data.test_pos_edge_index, data.test_neg_edge_index, embedding, adj_original)
             auc, ap = test(data.test_pos_edge_index, data.test_neg_edge_index)
-            print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
+            # results['accuracy_test'].append(accuracy)
+            
             results['auc_test'].append(auc)
             results['ap_test'].append(ap)
+
+            print('Test Epoch: {:03d}, AUC: {:.4f}, AP: {:.4f}'.format(epoch, auc, ap))
 
     # Evaluate on held-out test edges 
     # auc, ap = test(data.test_pos_edge_index, data.test_neg_edge_index)
     # print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
 
     # Pickle results 
-    pkl.dump(results, open('results.p', 'wb'))
+    if args.save:    
+        pkl.dump(results, open(args.dataset + '_RESULTS.p', 'wb'))
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
-    parser.add_argument('--dataset', type=str, default='Cora', help='PyTorch Geometric-Loaded Dataset')
+    parser.add_argument('--dataset', type=str, default='CORA', help='PyTorch Geometric-Loaded Dataset')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--test_freq', type=int, default=10)
     parser.add_argument('--num_epochs', type=int, default=200)
+    parser.add_argument('--save', type=bool, default=True)
 
     # add arg for epochs
 

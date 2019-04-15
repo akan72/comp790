@@ -186,6 +186,9 @@ class GAE(torch.nn.Module):
 
         return roc_auc_score(y, pred), average_precision_score(y, pred)
 
+    def get_accuracy(self, z, edg_index, sigmoid=True):
+        pass
+
 class VGAE(GAE):
     r"""The Variational Graph Auto-Encoder model from the
     `"Variational Graph Auto-Encoders" <https://arxiv.org/abs/1611.07308>`_
