@@ -1,5 +1,6 @@
 import pickle as pkl
 import numpy as np
+import math
 import scipy.sparse as sp
 import torch
 import networkx as nx
@@ -18,6 +19,11 @@ def plot_results(results, path):
     # Ploting Training Loss 
     trainingLoss = results['loss']
     x_axis_train = range(len(trainingLoss))
+    x_axis_test = list(range(len(results['auc_test'])))
+
+    testfreq = math.floor(len(results['loss']) / len(results['auc_test']))
+    
+    x_axis_test = [x * testfreq for x in x_axis_test]
 
     ax = fig.add_subplot(2, 2, 1)
     ax.plot(x_axis_train, trainingLoss)
@@ -26,29 +32,31 @@ def plot_results(results, path):
     ax.legend(['Train'], loc='upper right')
 
     # Plotting Training AUC 
-    trainingAUC = results['auc_train']
+    trainingAUC = results['auc_val']
+    testingAUC = results['auc_test']
 
     ax = fig.add_subplot(2, 2, 2)
     ax.plot(x_axis_train, trainingAUC)
+    ax.plot(x_axis_test, testingAUC)
     ax.set_ylabel('AUC')
     ax.set_title('Training AUC')
-    ax.legend(['Train'], loc='upper right')
+    ax.legend(['Train', 'Test'], loc='upper right')
 
     # Plotting Training PC 
-    trainingAP = results['ap_train']
+    trainingAP = results['ap_val']
+    testingAP = results['ap_test']
 
     ax = fig.add_subplot(2, 2, 3)
     ax.plot(x_axis_train, trainingAP)
+    ax.plot(x_axis_test, testingAP)
     ax.set_ylabel('AP')
     ax.set_title('Training AP')
-    ax.legend(['Train'], loc='upper right')
+    ax.legend(['Train', 'Test'], loc='upper right')
 
     fig.tight_layout()
     fig.savefig(path)
 
-
-
 results = pkl.load(open('results.p', 'rb'))
 
-plot_results(results, path='../figures/geometric/PUBMED_RESULTS.png')
+plot_results(results, path='../figures/geometric/CORA_RESULTS.png')
 

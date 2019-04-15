@@ -1,9 +1,10 @@
 
 # TODO: Modify torch_geo code to get accuracy metric
-# TODO: Get metrics for testing 
-# TODO: Step through Code 
+# TODO: Get test/train/valid results straight
 # TODO: Look at embeddings and reconstruction
 # TODO: Graph kernel similarity in loss
+# TODO: Step through Code 
+
 
 import os.path as osp
 import sys
@@ -80,7 +81,6 @@ def main(args, kwargs):
         loss.backward()
         optimizer.step()
 
-
     def test(pos_edge_index, neg_edge_index):
         model.eval()
         with torch.no_grad():
@@ -88,21 +88,28 @@ def main(args, kwargs):
             
         return model.test(z, pos_edge_index, neg_edge_index)
 
-    for epoch in range(1, 201):
+    for epoch in range(1, args.num_epochs):
         train()
+
+        # Run on validation edges
         auc, ap = test(data.val_pos_edge_index, data.val_neg_edge_index)
 
-        results['auc_train'].append(auc)
-        results['ap_train'].append(ap)
+        results['auc_val'].append(auc)
+        results['ap_val'].append(ap)
 
-        # Print AUC and AP during training epochs
+        # Print AUC and AP on validation data epochs
         if epoch % 10 == 0:
             print('Epoch: {:03d}, AUC: {:.4f}, AP: {:.4f}'.format(epoch, auc, ap))
 
+        if epoch % args.test_freq == 0:
+            auc, ap = test(data.test_pos_edge_index, data.test_neg_edge_index)
+            print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
+            results['auc_test'].append(auc)
+            results['ap_test'].append(ap)
 
     # Evaluate on held-out test edges 
-    auc, ap = test(data.test_pos_edge_index, data.test_neg_edge_index)
-    print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
+    # auc, ap = test(data.test_pos_edge_index, data.test_neg_edge_index)
+    # print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
 
     # Pickle results 
     pkl.dump(results, open('results.p', 'wb'))
@@ -114,6 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str, default='Cora', help='PyTorch Geometric-Loaded Dataset')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--test_freq', type=int, default=10)
+    parser.add_argument('--num_epochs', type=int, default=200)
 
     # add arg for epochs
 
