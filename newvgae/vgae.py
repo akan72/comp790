@@ -3,7 +3,7 @@ import random
 
 import torch
 import numpy as np
-from sklearn.metrics import roc_auc_score, average_precision_score
+from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score, mean_squared_error
 
 EPS = 1e-15
 
@@ -186,8 +186,61 @@ class GAE(torch.nn.Module):
 
         return roc_auc_score(y, pred), average_precision_score(y, pred)
 
-    def get_accuracy(self, z, edg_index, sigmoid=True):
-        pass
+    def get_accuracy(self, z, edges_pos, edges_neg, adj_orig):
+
+        def sigmoid(x):
+            return 1 / (1 + np.exp(-x))
+
+        z = z.data.numpy()
+        adj_reconstructed = np.dot(z, z.T)
+
+        preds_pos = []
+        pos = []
+
+        for e in edges_pos:
+            preds_pos.append(sigmoid(adj_reconstructed[e[0], e[1]]))
+            pos.append(adj_orig[e[0], e[1]])
+
+        preds_neg = []
+        neg = []
+
+        for e in edges_neg:
+            preds_neg.append(sigmoid(adj_reconstructed[e[0], e[1]]))
+            neg.append(adj_orig[e[0], e[1]])
+
+        preds_all = np.hstack([preds_pos, preds_neg])
+        # print(preds_all)
+
+        labels_all = np.hstack([np.ones(len(preds_pos)), np.zeros(len(preds_pos))])
+        # print(labels_all)
+
+        accuracy = accuracy_score((preds_all > .5).astype(float), labels_all)
+        return accuracy
+
+    def get_mse(self, z, adj_orig): 
+        # Reconstruct that latent variables into a dense probablistic adjacency matrix
+        adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
+
+        # TODO: Make sure original array is passed in as a numpy array of ints
+        adj_orig = adj_orig.toarray().astype(int)
+        adj_reconstructed = (adj_reconstructed > .5).astype(int)
+
+        return mean_squared_error(adj_orig, adj_reconstructed)
+
+    def get_accuracy_new(self, z, adj_orig):
+
+        adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
+        adj_orig = adj_orig.toarray().astype(int)
+        adj_reconstructed = (adj_reconstructed > .5).astype(int)
+
+        # print(adj_reconstructed)
+        # print(adj_orig)
+        # print('Reconstructed adj matrix: ', adj_reconstructed.shape, type(adj_reconstructed))
+        # print('Original adj matrix: ', adj_orig.shape, type(adj_orig))
+
+        accuracy = accuracy_score(adj_orig, adj_reconstructed)
+
+        return accuracy
 
 class VGAE(GAE):
     r"""The Variational Graph Auto-Encoder model from the

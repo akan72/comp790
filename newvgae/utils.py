@@ -5,6 +5,7 @@ import scipy.sparse as sp
 import torch
 import networkx as nx
 from sklearn.metrics import accuracy_score
+from sklearn.metrics.pairwise import rbf_kernel, linear_kernel, polynomial_kernel, cosine_similarity, laplacian_kernel
 import matplotlib.pyplot as plt
 
 # from torch_geometric.data import DataLoader
@@ -26,83 +27,103 @@ def get_adjacency(dataset):
 
     return adj
 
-# Get link prediction accuracy of our VGAE model
-def get_accuracy(pos_edge_index, neg_edge_index, adj_original):
-
-    model.eval()
-    with torch.no_grad():
-        z = model.encode(x, edge_index)
-
-    def sigomid(x):
-        return 1 / (1 + np.exp(-x))
-
-    z = z.data.numpy()
-    reconstruction = np.dot(z, z.T)
-    preds_pos = []
-    pos_orig = []
-
-    for e in pos_edge_index:
-        preds.append(sigomid(reconstruction[e[0], e[1]]))
-        pos.append(adj_original[e[0], e[1]])
-
-    preds_neg = []
-    neg_orig = []
-
-    for e in neg_edge_index:
-        preds_neg.append(sigmoid(reconstruction[e[0], e[1]]))
-        neg_orig.append(adj_original[e[0], e[1]])
-
-    preds_all = np.hstack([preds, preds_neg])
-    labels_all = np.hstack([np.ones(len(preds)), np.zeros(len(preds))])
-
-    accuracy = accuracy_score((preds_all > 0.5).astype(float), labels_all)
-
-    return accuracy
-
 def plot_results(results, path):
     plt.close('all')
     fig = plt.figure(figsize=(8, 8))
 
     # Ploting Training Loss 
-    trainingLoss = results['loss']
-    x_axis_train = range(len(trainingLoss))
-    x_axis_test = list(range(len(results['auc_test'])))
+    # trainingLoss = [x.detach().numpy() for x in results['loss']]
+    trainingLoss = torch.stack(results['loss'], dim=0).detach().numpy()
+    x_axis_train = np.array(range(len(trainingLoss)))
 
     testfreq = math.floor(len(results['loss']) / len(results['auc_test'])) 
 
+    x_axis_test = np.array(list(range(len(results['auc_test']))))
     x_axis_test = [x * testfreq for x in x_axis_test]
 
     ax = fig.add_subplot(2, 2, 1)
-    ax.plot(x_axis_train, trainingLoss)
+
+    print(x_axis_train.shape)
+    print(x_axis_train)
+    print(type(trainingLoss))
+    print(trainingLoss.shape)
+    print(trainingLoss)
+
+
+    ax.plot(np.array([x_axis_train]), np.array([trainingLoss]))
     ax.set_ylabel('ELBO Loss')
     ax.set_title('Training ELBO Loss (with KL Regularization)')
     ax.legend(['Train'], loc='upper right')
 
-    # Plotting Training AUC 
+    # Plotting Accuracy
+
+    trainingACC = np.array(results['acc_val'])
+    testingACC = np.array(results['acc_test'])
+
+    # print(trainingLoss)
+    # print(trainingACC)
+
+    ax = fig.add_subplot(2, 2, 2)
+    ax.plot(x_axis_train, trainingACC)
+    ax.plot(x_axis_test, testingACC)
+    ax.set_ylabel('Accuracy')
+    ax.set_title('Model Accuracy')
+    ax.legend(['Train', 'Test'], loc='upper right')
+
+    # Plotting AUC 
     trainingAUC = results['auc_val']
     testingAUC = results['auc_test']
 
-    ax = fig.add_subplot(2, 2, 2)
+    ax = fig.add_subplot(2, 2, 3)
     ax.plot(x_axis_train, trainingAUC)
     ax.plot(x_axis_test, testingAUC)
     ax.set_ylabel('AUC')
-    ax.set_title('Training AUC')
+    ax.set_title('Model AUC')
     ax.legend(['Train', 'Test'], loc='upper right')
 
-    # Plotting Training PC 
+    # Plotting AP 
     trainingAP = results['ap_val']
     testingAP = results['ap_test']
 
-    ax = fig.add_subplot(2, 2, 3)
+    ax = fig.add_subplot(2, 2, 4)
     ax.plot(x_axis_train, trainingAP)
     ax.plot(x_axis_test, testingAP)
     ax.set_ylabel('AP')
-    ax.set_title('Training AP')
+    ax.set_title('Model AP')
     ax.legend(['Train', 'Test'], loc='upper right')
 
     fig.tight_layout()
     fig.savefig(path)
 
-plot_results(pkl.load(open('CORA_RESULTS.p', 'rb')), path='../figures/geometric/CORA_RESULTS.png')
-plot_results(pkl.load(open('CITESEER_RESULTS.p', 'rb')), path='../figures/geometric/CITESEER_RESULTS.png')
-plot_results(pkl.load(open('PUBMED_RESULTS.p', 'rb')), path='../figures/geometric/PUBMED_RESULTS.png')
+def kernel_similarity(original , reconstructed, kernel): 
+
+    G1 = nx.from_numpy_matrix(original)
+    G2 = nx.from_numpy_matrix(reconstructed)
+
+    assert(len(G1) == len(G2))
+
+    t1 = nx.floyd_warshall(original)
+    t2 = nx.floyd_warshall(reconstructed)
+
+    numNodes = len(G1)
+    t1paths = []
+    t2paths = []
+
+    for i in range(numNodes):
+        t1paths.append(list(t1[i].values()))
+        t2paths.append(list(t2[i].values()))
+
+    kernelResult = sum(sum(kernel(t1paths, t2paths)))
+    print(kernelResult)
+
+    return kernelResult
+
+def graph_edit_distance(original, reconstructed):
+    
+    G1 = nx.from_scipy_sparse_matrix(original)
+    G2 = nx.from_numpy_matrix(reconstructed)
+
+    edit_distance = nx.algorithms.summary.optimize_graph_edit_distance(G1, G2)
+    print(edit_distance)
+
+    return edit_distance
