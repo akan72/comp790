@@ -60,7 +60,7 @@ def main(args, kwargs):
     data = dataset[0]
 
     # Store the original adjacnecy matrix (for later calculation of edge prediction accuracy)
-    adj_original = get_adjacency(data)
+    adj_original = get_adjacency(data).toarray(int)
 
     channels = 16
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -84,13 +84,6 @@ def main(args, kwargs):
         z = model.encode(x, edge_index)    
 
         ''' 
-        Testing MSE
-        '''
-        
-        # TODO: Get mse here 
-        # print(model.get_mse(z, adj_original))
-
-        '''
         END TESTING
         '''
 
@@ -134,6 +127,8 @@ def main(args, kwargs):
         '''
 
 
+        # loss = model.recon_loss_l2(z, adj_original)
+        # recon_loss_l2 = model.recon_loss_l2(z, adj_original)
 
         loss = model.recon_loss(z, data.train_pos_edge_index)
         loss = loss + 0.001 * model.kl_loss()
@@ -204,7 +199,11 @@ def main(args, kwargs):
 
     if args.save:    
         modelPath = args.dataset + '_RESULTS.p'
-        plotPath = '../figures/geometric/' + args.dataset + '_RESULTS.png'
+
+        if args.notes is None:
+            plotPath = '../figures/geometric/' + args.dataset + '_RESULTS.png'
+        else:
+            plotPath = '../figures/geometric/' + args.notes + '_' +args.dataset + '_RESULTS.png'
 
         pkl.dump(results, open(modelPath, 'wb'))
         plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath)
@@ -223,6 +222,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_freq', type=int, default=10)
     parser.add_argument('--num_epochs', type=int, default=200)
     parser.add_argument('--save', type=int, default=1)
+    parser.add_argument('--notes', type=str, default=None)
 
     # add arg for epochs
 

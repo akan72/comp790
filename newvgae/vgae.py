@@ -142,6 +142,15 @@ class GAE(torch.nn.Module):
 
         return data
 
+    def recon_loss_l2(self, z, adj_orig): 
+        # Reconstruct that latent variables into a dense probablistic adjacency matrix
+        adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
+
+        # TODO: Make sure original array is passed in as a numpy array of ints
+        adj_reconstructed = (adj_reconstructed > .5).astype(int)
+
+        return mean_squared_error(adj_orig, adj_reconstructed)
+
     def recon_loss(self, z, pos_edge_index):
         r"""Given latent variables :obj:`z`, computes the binary cross
         entropy loss for positive edges :obj:`pos_edge_index` and negative
@@ -216,16 +225,6 @@ class GAE(torch.nn.Module):
 
         accuracy = accuracy_score((preds_all > .5).astype(float), labels_all)
         return accuracy
-
-    def get_mse(self, z, adj_orig): 
-        # Reconstruct that latent variables into a dense probablistic adjacency matrix
-        adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
-
-        # TODO: Make sure original array is passed in as a numpy array of ints
-        adj_orig = adj_orig.toarray().astype(int)
-        adj_reconstructed = (adj_reconstructed > .5).astype(int)
-
-        return mean_squared_error(adj_orig, adj_reconstructed)
 
     def get_accuracy_new(self, z, adj_orig):
 
