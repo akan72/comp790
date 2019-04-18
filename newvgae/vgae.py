@@ -161,11 +161,11 @@ class GAE(torch.nn.Module):
             pos_edge_index (LongTensor): The positive edges to train against.
         """
 
-        pos_loss = -torch.log(self.decode_indices(z, pos_edge_index) +
+        pos_loss = -torch.log(self.decode(z, pos_edge_index) +
                               EPS).mean()
 
         neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
-        neg_loss = -torch.log(1 - self.decode_indices(z, neg_edge_index) +
+        neg_loss = -torch.log(1 - self.decode(z, neg_edge_index) +
                               EPS).mean()
 
         return pos_loss + neg_loss
@@ -187,8 +187,8 @@ class GAE(torch.nn.Module):
         neg_y = z.new_zeros(neg_edge_index.size(1))
         y = torch.cat([pos_y, neg_y], dim=0)
 
-        pos_pred = self.decode_indices(z, pos_edge_index)
-        neg_pred = self.decode_indices(z, neg_edge_index)
+        pos_pred = self.decode(z, pos_edge_index)
+        neg_pred = self.decode(z, neg_edge_index)
         pred = torch.cat([pos_pred, neg_pred], dim=0)
 
         y, pred = y.detach().cpu().numpy(), pred.detach().cpu().numpy()
