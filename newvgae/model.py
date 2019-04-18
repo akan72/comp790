@@ -204,7 +204,7 @@ def main(args, kwargs):
 
     if args.save:    
         modelPath = args.dataset + '_RESULTS.p'
-        plotPath = '../figure/geometric/' + args.dataset + '_RESULTS.png'
+        plotPath = '../figures/geometric/' + args.dataset + '_RESULTS.png'
 
         pkl.dump(results, open(modelPath, 'wb'))
         plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath)
