@@ -33,7 +33,8 @@ def plot_results(results, path):
 
     # Ploting Training Loss 
     # trainingLoss = [x.detach().numpy() for x in results['loss']]
-    trainingLoss = torch.stack(results['loss'], dim=0).detach().numpy()
+    # trainingLoss = torch.stack(results['loss'], dim=0).detach().numpy()
+    trainingLoss = results['loss']
     x_axis_train = np.array(range(len(trainingLoss)))
 
     testfreq = math.floor(len(results['loss']) / len(results['auc_test'])) 
@@ -43,32 +44,33 @@ def plot_results(results, path):
 
     ax = fig.add_subplot(2, 2, 1)
 
-    print(x_axis_train.shape)
-    print(x_axis_train)
-    print(type(trainingLoss))
-    print(trainingLoss.shape)
-    print(trainingLoss)
+    # print(x_axis_train.shape)
+    # print(x_axis_train)
+    # print(type(trainingLoss), type(x_axis_train))
+    # print(len(trainingLoss), len(x_axis_train))
+    # print(trainingLoss.shape)
+    # print(trainingLoss)
 
 
-    ax.plot(np.array([x_axis_train]), np.array([trainingLoss]))
+    ax.plot(x_axis_train, trainingLoss)
     ax.set_ylabel('ELBO Loss')
     ax.set_title('Training ELBO Loss (with KL Regularization)')
     ax.legend(['Train'], loc='upper right')
 
     # Plotting Accuracy
 
-    trainingACC = np.array(results['acc_val'])
-    testingACC = np.array(results['acc_test'])
+    # trainingACC = np.array(results['acc_val'])
+    # testingACC = np.array(results['acc_test'])
 
-    # print(trainingLoss)
-    # print(trainingACC)
+    # print(trainingLoss.shape)
+    # print(trainingACC.shape)
 
-    ax = fig.add_subplot(2, 2, 2)
-    ax.plot(x_axis_train, trainingACC)
-    ax.plot(x_axis_test, testingACC)
-    ax.set_ylabel('Accuracy')
-    ax.set_title('Model Accuracy')
-    ax.legend(['Train', 'Test'], loc='upper right')
+    # ax = fig.add_subplot(2, 2, 2)
+    # ax.plot(x_axis_train, trainingACC)
+    # ax.plot(x_axis_test, testingACC)
+    # ax.set_ylabel('Accuracy')
+    # ax.set_title('Model Accuracy')
+    # ax.legend(['Train', 'Test'], loc='upper right')
 
     # Plotting AUC 
     trainingAUC = results['auc_val']
