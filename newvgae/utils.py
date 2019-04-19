@@ -1,3 +1,4 @@
+import argparse
 import pickle as pkl
 import numpy as np
 import math
@@ -129,3 +130,50 @@ def graph_edit_distance(original, reconstructed):
     print(edit_distance)
 
     return edit_distance
+
+
+def parameter_parser():
+    parser = argparse.ArgumentParser(description= 'VGAE')
+
+    parser.add_argument('--dataset',
+                        type=str,
+                        default='CORA',
+                        help='PyTorch Geometric-Loaded Dataset.')
+    
+    parser.add_argument('--save',
+                        type=int,
+                        default=1,
+                        help='Whether to save current results, 1==Yes, 0==No.')
+                        
+    parser.add_argument('--notes',
+                        type=str,
+                        default=None,
+                        help='Add description to pickled results and output plots.')
+
+    parser.add_argument('--loss',
+                        type=str,
+                        choices=['bce', 'l2', 'anneal'],
+                        default='bce',
+                        help='Loss type.')
+
+    parser.add_argument('--model', 
+                        type=str,
+                        default='VGAE',
+                        help='Type of model (by default the base VGAE)')
+
+    parser.add_argument('--seed',
+                        type=int,
+                        default=0,
+                        help='Random seed.')
+
+    parser.add_argument('--test_freq',
+                        type=int,
+                        default=10,
+                        help='Frequency of (measured in epochs).')
+
+    parser.add_argument('--epochs',
+                        type=int,
+                        default=200,
+                        help='Number of epochs for which the model is run.')
+
+    return parser.parse_args()

@@ -1,19 +1,25 @@
+# TODO: Parser
 # TODO: Try with MNIST
-# TODO: Graph edit distance?
-# TODO: Fix accuracy metric with decode_indices
+# TODO: Try L2 loss with proper labeling
+# TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 
-# TODO: Try L2 loss by comparing adj_original with modle.decode(z)
-# TODO: Use model.negative_sampling to get neg edge indices 
-# TODO: Graph kernel similarity in loss
+# TODO: Graph edit distance?
+# TODO: Graph kernel similarity in loss? not differentiable
+
+# TODO: Visualize encoding space?
+
+# TODO: Fix accuracy metric with decode_indices
 # TODO: Look at embeddings and reconstruction
 # TODO: Play with latent code size 
 
-# TODO: Check whether we are storing the full adjacency matrix within memory multiple times
-# TODO: Step through Code 
+# TODO: Use model.negative_sampling to get neg edge indices 
+
+# import parser
+from utils import get_adjacency, plot_results, kernel_similarity, graph_edit_distance, parameter_parser
 
 import os.path as osp
 import sys
-import argparse
+# import argparse
 import pickle as pkl
 
 from collections import defaultdict
@@ -25,11 +31,10 @@ import torch
 import torch.nn.functional as F
 
 from torch_geometric.datasets import Planetoid
-import torch_geometric.transforms as T
 from torch_geometric.nn import GCNConv
+import torch_geometric.transforms as T
 
 from vgae import GAE, VGAE, negative_sampling
-from utils import get_adjacency, plot_results, kernel_similarity, graph_edit_distance
 
 # Define forward function of our VGAE Model 
 class Encoder(torch.nn.Module):
@@ -83,11 +88,6 @@ def main(args, kwargs):
         # Produces N * channels vector         
         z = model.encode(x, edge_index)    
 
-        ''' 
-        END TESTING
-        '''
-
-
         '''
         TESTING DECODE_INDICES 
         '''
@@ -126,12 +126,14 @@ def main(args, kwargs):
         END TESTING
         '''
 
-
-        # loss = model.recon_loss_l2(z, adj_original)
-        # recon_loss_l2 = model.recon_loss_l2(z, adj_original)
-
-        loss = model.recon_loss(z, data.train_pos_edge_index)
-        loss = loss + 0.001 * model.kl_loss()
+        if args.loss == 'bce':
+            loss = model.recon_loss(z, data.train_pos_edge_index)
+            loss = loss + 0.001 * model.kl_loss()
+        elif args.loss == 'l2':
+            loss = model.recon_loss_l2(z, adj_original)
+            loss = loss + 0.001 * model.kl_loss()
+        elif args.loss == 'anneal':
+            pass 
 
         # TODO: Normalize epoch loss with (2/ N*N) ?
         results['loss'].append(loss)
@@ -163,7 +165,7 @@ def main(args, kwargs):
         # return accuracy, auc, ap
         return auc, ap
 
-    for epoch in range(1, args.num_epochs):
+    for epoch in range(1, args.epochs):
         train()
 
         # Run on validation edges
@@ -198,7 +200,7 @@ def main(args, kwargs):
     # Pickle results 
 
     if args.save:    
-        modelPath = args.dataset + '_RESULTS.p'
+        modelPath = '../models/' + args.notes + '_' + args.dataset + '_RESULTS.p'
 
         if args.notes is None:
             plotPath = '../figures/geometric/' + args.dataset + '_RESULTS.png'
@@ -215,18 +217,20 @@ def main(args, kwargs):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
-    parser.add_argument('--dataset', type=str, default='CORA', help='PyTorch Geometric-Loaded Dataset')
-    parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--test_freq', type=int, default=10)
-    parser.add_argument('--num_epochs', type=int, default=200)
-    parser.add_argument('--save', type=int, default=1)
-    parser.add_argument('--notes', type=str, default=None)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
+    # parser.add_argument('--dataset', type=str, default='CORA', help='PyTorch Geometric-Loaded Dataset')
+    # parser.add_argument('--seed', type=int, default=0)
+    # parser.add_argument('--test_freq', type=int, default=10)
+    # parser.add_argument('--num_epochs', type=int, default=200)
+    # parser.add_argument('--save', type=int, default=1)
+    # parser.add_argument('--notes', type=str, default=None)
 
-    # add arg for epochs
+    # # add arg for epochs
 
-    args, unknown = parser.parse_known_args()
+    # args, unknown = parser.parse_known_args()
+
+    args = parameter_parser()
     
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
