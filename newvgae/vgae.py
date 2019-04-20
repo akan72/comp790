@@ -80,19 +80,14 @@ class GAE(torch.nn.Module):
         adj = torch.matmul(z, z.t())
         return torch.sigmoid(adj) if sigmoid else adj
 
-    def upconvDecoder(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
+    def upconv_decode(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
         upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
         upconv2 = GCNConv(2*out_channels, in_channels, cached=True)
 
-        z = F.relu(upconv1(z, edge_index))
-        z = upconv2(z, edge_index)
-        print("in upconvDecoder")
-        print("z", z)
-        print(z.shape)
-        return z 
+        x = F.relu(upconv1(z, edge_index))
+        x = upconv2(x, edge_index)
 
-    
-
+        return torch.sigmoid(x) if sigmoid else adj
 
     def decode_indices(self, z, edge_index, sigmoid=True):
         r"""Decodes the latent variables :obj:`z` into edge-probabilties for
@@ -171,6 +166,9 @@ class GAE(torch.nn.Module):
         # TODO: Make sure original array is passed in as a numpy array of ints
         adj_reconstructed = (adj_reconstructed > .5).astype(int)
 
+        # print(adj_reconstructed)
+        # print(adj_orig)
+
         return mean_squared_error(adj_orig, adj_reconstructed)
 
     def recon_loss(self, z, pos_edge_index):
@@ -192,26 +190,14 @@ class GAE(torch.nn.Module):
 
         return pos_loss + neg_loss
 
-    def new_recon_loss(self, z, pos_edge_index):
-        pos_decoded = self.upconvDecoder(z, pos_edge_index, 1433,16) + EPS
-        neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
-        neg_decoded = 1-self.upconvDecoder(z, neg_edge_index,1433,16) + EPS
-
-        # print(pos_decoded, pos_decoded.shape)
-        # print(neg_decoded, neg_decoded.shape)
-
-        print(pos_decoded.shape, neg_decoded.shape)
-
-        pos_y = z.new_ones(pos_edge_index.size(1))
-        neg_y = z.new_zeros(neg_edge_index.size(1))
-        y = torch.cat([pos_y, neg_y], dim=0)
-
-        pred = torch.cat([pos_decoded, neg_decoded], dim=0)
+    def new_recon_loss(self, z, edge_index, num_nodes, num_channels, adj_original):
+        pred = self.upconv_decode(z, edge_index, num_nodes, num_channels)
+        # print(pred, pred.shape)
+        # print(adj_original, adj_original.shape)
+        
         bce = nn.BCELoss()
     
-        return bce(pred, y)
-
-    # def 
+        return bce(pred, adj_original)
 
     def test(self, z, pos_edge_index, neg_edge_index):
         r"""Given latent variables :obj:`z`, positive edges
@@ -230,16 +216,18 @@ class GAE(torch.nn.Module):
         neg_y = z.new_zeros(neg_edge_index.size(1))
         y = torch.cat([pos_y, neg_y], dim=0)
 
-        pos_pred = self.decode_indices(z, pos_edge_index)
-        neg_pred = self.decode_indices(z, neg_edge_index)
+        pos_pred = self.decode_indices(z, pos_edge_index, sigmoid=True)
+        neg_pred = self.decode_indices(z, neg_edge_index, sigmoid=True)
         pred = torch.cat([pos_pred, neg_pred], dim=0)
 
         y, pred = y.detach().cpu().numpy(), pred.detach().cpu().numpy()
 
+        # print('y: ', y, y.shape)
+        # print('pred: ', pred, pred.shape)
+
         return roc_auc_score(y, pred), average_precision_score(y, pred)
 
     def get_accuracy(self, z, edges_pos, edges_neg, adj_orig):
-
         def sigmoid(x):
             return 1 / (1 + np.exp(-x))
 
@@ -261,10 +249,10 @@ class GAE(torch.nn.Module):
             neg.append(adj_orig[e[0], e[1]])
 
         preds_all = np.hstack([preds_pos, preds_neg])
-        # print(preds_all)
+        print('preds_all: ', preds_all)
 
         labels_all = np.hstack([np.ones(len(preds_pos)), np.zeros(len(preds_pos))])
-        # print(labels_all)
+        print('labels_all: ', labels_all)
 
         accuracy = accuracy_score((preds_all > .5).astype(float), labels_all)
         return accuracy
@@ -272,14 +260,15 @@ class GAE(torch.nn.Module):
     def get_accuracy_new(self, z, adj_orig):
 
         adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
-        adj_orig = adj_orig.toarray().astype(int)
-        adj_reconstructed = (adj_reconstructed > .5).astype(int)
+        # print(adj_reconstructed)
+    
+        adj_orig = adj_orig.astype(float)
+        adj_reconstructed = (adj_reconstructed > .5).astype(float)
 
         # print(adj_reconstructed)
         # print(adj_orig)
         # print('Reconstructed adj matrix: ', adj_reconstructed.shape, type(adj_reconstructed))
         # print('Original adj matrix: ', adj_orig.shape, type(adj_orig))
-
         accuracy = accuracy_score(adj_orig, adj_reconstructed)
 
         return accuracy

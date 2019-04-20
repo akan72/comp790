@@ -1,4 +1,3 @@
-# TODO: Test mnist
 # TODO: Try L2 loss with proper labeling
 # TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 
@@ -68,7 +67,7 @@ def main(args, kwargs):
     data = dataset[0]
 
     # Store the original adjacnecy matrix (for later calculation of edge prediction accuracy)
-    adj_original = get_adjacency(data).toarray(int)
+    adj_original = torch.tensor(np.asarray(get_adjacency(data).toarray(), dtype=np.float32), requires_grad=False)
 
     channels = 16
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -134,13 +133,8 @@ def main(args, kwargs):
             loss = model.recon_loss(z, data.train_pos_edge_index)
             loss = loss + 0.001 * model.kl_loss()
         elif args.loss == 'newbce':
-            # edge_list_original = nx.from_numpy_matrix(adj_original_split.train_pos_edge_index)
-            # nx.write_edgelist(edge_list_original, 'tmp.edgelist')
-
-            # my_data = np.genfromtxt('tmp.edgelist', delimiter=' ')[:, :2].T
-            # edge_list_original = torch.tensor(my_data, requires_grad=True)
-
-            loss = model.new_recon_loss(z, data.train_pos_edge_index)
+            numNodes = len(data['x'])
+            loss = model.new_recon_loss(z, edge_index, num_nodes=numNodes, num_channels=channels, adj_original=adj_original)
             loss = loss + 0.001 * model.kl_loss()
         elif args.loss == 'l2':
             loss = model.recon_loss_l2(z, adj_original)
@@ -161,6 +155,7 @@ def main(args, kwargs):
 
         # accuracy = model.get_accuracy(z, pos_edge_index, neg_edge_index, adj_original)
         # accuracy = model.get_accuracy_new(z, adj_original)
+        # print(accuracy)
         auc, ap = model.test(z, pos_edge_index, neg_edge_index)
 
         # return accuracy, auc, ap
@@ -214,39 +209,16 @@ def main(args, kwargs):
     if args.save:  
         print('saved')  
         if args.notes is None:
-            print('no notes')
             modelPath = '../models/' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.data + '_RESULTS.png'
         else: 
-            print('notes')
-            print(args.notes)
             modelPath = '../models/' + args.notes + '_' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.notes + '_' + args.data + '_RESULTS.png'
 
-        print(modelPath, '\n', plotPath)
         pkl.dump(results, open(modelPath, 'wb'))
         plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath, loss=args.loss)
 
-        # plot_results(pkl.load(open('CORA_RESULTS.p', 'rb')), path='../figures/geometric/CORA_RESULTS.png')
-        # plot_results(pkl.load(open('CITESEER_RESULTS.p', 'rb')), path='../figures/geometric/CITESEER_RESULTS.png')
-        # plot_results(pkl.load(open('PUBMED_RESULTS.p', 'rb')), path='../figures/geometric/PUBMED_RESULTS.png')
-
-
 if __name__ == '__main__':
-
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
-    # parser.add_argument('--dataset', type=str, default='CORA', help='PyTorch Geometric-Loaded Dataset')
-    # parser.add_argument('--seed', type=int, default=0)
-    # parser.add_argument('--test_freq', type=int, default=10)
-    # parser.add_argument('--num_epochs', type=int, default=200)
-    # parser.add_argument('--save', type=int, default=1)
-    # parser.add_argument('--notes', type=str, default=None)
-
-    # # add arg for epochs
-
-    # args, unknown = parser.parse_known_args()
-
     args = parameter_parser()
     
     np.random.seed(args.seed)
