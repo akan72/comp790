@@ -196,7 +196,7 @@ class GAE(torch.nn.Module):
         # print(pred, pred.shape)
         # print(adj_original, adj_original.shape)
         
-        bce = nn.BCELoss()
+        bce = nn.MSELoss()
     
         return bce(pred, adj_original)
 

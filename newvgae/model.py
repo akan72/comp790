@@ -136,6 +136,9 @@ def main(args, kwargs):
             numNodes = len(data['x'])
             loss = model.new_recon_loss(z, edge_index, num_nodes=numNodes, num_channels=channels, adj_original=adj_original)
             loss = loss + 0.001 * model.kl_loss()
+
+            print('loss: ', loss)
+
         elif args.loss == 'l2':
             loss = model.recon_loss_l2(z, adj_original)
             loss = loss + 0.001 * model.kl_loss()
@@ -207,7 +210,6 @@ def main(args, kwargs):
 
     # Pickle results 
     if args.save:  
-        print('saved')  
         if args.notes is None:
             modelPath = '../models/' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.data + '_RESULTS.png'
