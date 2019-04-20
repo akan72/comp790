@@ -81,13 +81,15 @@ class GAE(torch.nn.Module):
         return torch.sigmoid(adj) if sigmoid else adj
 
     def upconv_decode(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
-        upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
-        upconv2 = GCNConv(2 * out_channels, in_channels, cached=True)
+        # upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
+        # upconv2 = GCNConv(2 * out_channels, in_channels, cached=True)
 
-        x = F.relu(upconv1(z, edge_index))
-        x = upconv2(x, edge_index)
+        # x = F.relu(upconv1(z, edge_index))
+        # x = upconv2(x, edge_index)
 
-        return torch.sigmoid(x) if sigmoid else adj
+        x = torch.matmul(z, z.t())
+
+        return torch.sigmoid(x) if sigmoid else x
 
     def decode_indices(self, z, edge_index, sigmoid=True):
         r"""Decodes the latent variables :obj:`z` into edge-probabilties for
@@ -196,7 +198,7 @@ class GAE(torch.nn.Module):
         # print(pred, pred.shape)
         # print(adj_original, adj_original.shape)
         
-        bce = nn.MSELoss()
+        bce = nn.BCELoss()
     
         return bce(pred, adj_original)
 
