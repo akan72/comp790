@@ -16,26 +16,25 @@
 
 # TODO: Use model.negative_sampling to get neg edge indices 
 
-# import parser
-from utils import get_adjacency, plot_results, kernel_similarity, graph_edit_distance, parameter_parser
-
 import os.path as osp
-import sys
 import pickle as pkl
-
+import sys
 from collections import defaultdict
 
-import numpy as np
 import networkx as nx
-
+import numpy as np
 import torch
 import torch.nn.functional as F
-
-from torch_geometric.datasets import Planetoid, MNISTSuperpixels
-from torch_geometric.nn import GCNConv
 import torch_geometric.transforms as T
+from torch_geometric.datasets import MNISTSuperpixels, Planetoid
+from torch_geometric.nn import GCNConv
+from urllib3 import request
 
+# import parser
+from utils import (get_adjacency, graph_edit_distance, kernel_similarity,
+                   parameter_parser, plot_results)
 from vgae import GAE, VGAE, negative_sampling
+
 
 # Define forward function of our VGAE Model 
 class Encoder(torch.nn.Module):
@@ -77,6 +76,7 @@ def main(args, kwargs):
     model = kwargs[args.model](Encoder(dataset.num_features, channels)).to(device)
 
     data.train_mask = data.val_mask = data.test_mask = data.y = None
+    
     data = model.split_edges(data)
 
     x, edge_index = data.x.to(device), data.edge_index.to(device)
@@ -132,6 +132,15 @@ def main(args, kwargs):
 
         if args.loss == 'bce':
             loss = model.recon_loss(z, data.train_pos_edge_index)
+            loss = loss + 0.001 * model.kl_loss()
+        elif args.loss == 'newbce':
+            # edge_list_original = nx.from_numpy_matrix(adj_original_split.train_pos_edge_index)
+            # nx.write_edgelist(edge_list_original, 'tmp.edgelist')
+
+            # my_data = np.genfromtxt('tmp.edgelist', delimiter=' ')[:, :2].T
+            # edge_list_original = torch.tensor(my_data, requires_grad=True)
+
+            loss = model.new_recon_loss(z, data.train_pos_edge_index)
             loss = loss + 0.001 * model.kl_loss()
         elif args.loss == 'l2':
             loss = model.recon_loss_l2(z, adj_original)
@@ -247,4 +256,3 @@ if __name__ == '__main__':
     kwargs = {'GAE': GAE, 'VGAE': VGAE}
 
     main(args, kwargs)
-

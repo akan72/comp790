@@ -145,7 +145,7 @@ def parameter_parser():
 
     parser.add_argument('--loss',
                         type=str,
-                        choices=['bce', 'l2', 'anneal'],
+                        choices=['bce', 'newbce', 'l2', 'anneal'],
                         default='bce',
                         help='Loss type.')
 

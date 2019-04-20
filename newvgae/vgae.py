@@ -1,9 +1,17 @@
 import math
 import random
 
-import torch
+import networkx as nx
 import numpy as np
-from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score, mean_squared_error
+import torch
+from networkx.convert_matrix import from_numpy_matrix
+from sklearn.metrics import (accuracy_score, average_precision_score,
+                             mean_squared_error, roc_auc_score)
+
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn.modules import BCELoss
+from torch_geometric.nn import GCNConv
 
 EPS = 1e-15
 
@@ -71,6 +79,20 @@ class GAE(torch.nn.Module):
         """
         adj = torch.matmul(z, z.t())
         return torch.sigmoid(adj) if sigmoid else adj
+
+    def upconvDecoder(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
+        upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
+        upconv2 = GCNConv(2*out_channels, in_channels, cached=True)
+
+        z = F.relu(upconv1(z, edge_index))
+        z = upconv2(z, edge_index)
+        print("in upconvDecoder")
+        print("z", z)
+        print(z.shape)
+        return z 
+
+    
+
 
     def decode_indices(self, z, edge_index, sigmoid=True):
         r"""Decodes the latent variables :obj:`z` into edge-probabilties for
@@ -160,7 +182,7 @@ class GAE(torch.nn.Module):
             z (Tensor): The latent space :math:`\mathbf{Z}`.
             pos_edge_index (LongTensor): The positive edges to train against.
         """
-
+        
         pos_loss = -torch.log(self.decode_indices(z, pos_edge_index) +
                               EPS).mean()
 
@@ -169,6 +191,27 @@ class GAE(torch.nn.Module):
                               EPS).mean()
 
         return pos_loss + neg_loss
+
+    def new_recon_loss(self, z, pos_edge_index):
+        pos_decoded = self.upconvDecoder(z, pos_edge_index, 1433,16) + EPS
+        neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
+        neg_decoded = 1-self.upconvDecoder(z, neg_edge_index,1433,16) + EPS
+
+        # print(pos_decoded, pos_decoded.shape)
+        # print(neg_decoded, neg_decoded.shape)
+
+        print(pos_decoded.shape, neg_decoded.shape)
+
+        pos_y = z.new_ones(pos_edge_index.size(1))
+        neg_y = z.new_zeros(neg_edge_index.size(1))
+        y = torch.cat([pos_y, neg_y], dim=0)
+
+        pred = torch.cat([pos_decoded, neg_decoded], dim=0)
+        bce = nn.BCELoss()
+    
+        return bce(pred, y)
+
+    # def 
 
     def test(self, z, pos_edge_index, neg_edge_index):
         r"""Given latent variables :obj:`z`, positive edges
