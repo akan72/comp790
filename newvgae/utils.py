@@ -28,13 +28,11 @@ def get_adjacency(dataset):
 
     return adj
 
-def plot_results(results, path):
+def plot_results(results, path, loss):
     plt.close('all')
     fig = plt.figure(figsize=(8, 8))
 
     # Ploting Training Loss 
-    # trainingLoss = [x.detach().numpy() for x in results['loss']]
-    # trainingLoss = torch.stack(results['loss'], dim=0).detach().numpy()
     trainingLoss = results['loss']
     x_axis_train = np.array(range(len(trainingLoss)))
 
@@ -43,19 +41,12 @@ def plot_results(results, path):
     x_axis_test = np.array(list(range(len(results['auc_test']))))
     x_axis_test = [x * testfreq for x in x_axis_test]
 
-    ax = fig.add_subplot(2, 2, 1)
-
-    # print(x_axis_train.shape)
-    # print(x_axis_train)
-    # print(type(trainingLoss), type(x_axis_train))
-    # print(len(trainingLoss), len(x_axis_train))
-    # print(trainingLoss.shape)
-    # print(trainingLoss)
-
+    ax = fig.add_subplot(3, 1, 1)
 
     ax.plot(x_axis_train, trainingLoss)
     ax.set_ylabel('ELBO Loss')
-    ax.set_title('Training ELBO Loss (with KL Regularization)')
+    ax.set_xlabel('Epoch')
+    ax.set_title('Training ELBO Loss (' + loss.upper() + ' reconstruction)')
     ax.legend(['Train'], loc='upper right')
 
     # Plotting Accuracy
@@ -77,10 +68,11 @@ def plot_results(results, path):
     trainingAUC = results['auc_val']
     testingAUC = results['auc_test']
 
-    ax = fig.add_subplot(2, 2, 3)
+    ax = fig.add_subplot(3, 1, 2)
     ax.plot(x_axis_train, trainingAUC)
     ax.plot(x_axis_test, testingAUC)
     ax.set_ylabel('AUC')
+    ax.set_xlabel('Epoch')
     ax.set_title('Model AUC')
     ax.legend(['Train', 'Test'], loc='upper right')
 
@@ -88,10 +80,11 @@ def plot_results(results, path):
     trainingAP = results['ap_val']
     testingAP = results['ap_test']
 
-    ax = fig.add_subplot(2, 2, 4)
+    ax = fig.add_subplot(3, 1, 3)
     ax.plot(x_axis_train, trainingAP)
     ax.plot(x_axis_test, testingAP)
     ax.set_ylabel('AP')
+    ax.set_xlabel('Epoch')
     ax.set_title('Model AP')
     ax.legend(['Train', 'Test'], loc='upper right')
 
@@ -135,7 +128,7 @@ def graph_edit_distance(original, reconstructed):
 def parameter_parser():
     parser = argparse.ArgumentParser(description= 'VGAE')
 
-    parser.add_argument('--dataset',
+    parser.add_argument('--data',
                         type=str,
                         default='CORA',
                         help='PyTorch Geometric-Loaded Dataset.')

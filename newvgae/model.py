@@ -1,16 +1,18 @@
-# TODO: Parser
-# TODO: Try with MNIST
+# TODO: Test mnist
 # TODO: Try L2 loss with proper labeling
 # TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 
-# TODO: Graph edit distance?
-# TODO: Graph kernel similarity in loss? not differentiable
+# TODO: Graph edit distance? try nx first
 
 # TODO: Visualize encoding space?
+# TODO: Play with latent code size 
+# TODO: Sampling codes
+
+# TODO: EM
+# TODO: Differentiable graph kernel
 
 # TODO: Fix accuracy metric with decode_indices
 # TODO: Look at embeddings and reconstruction
-# TODO: Play with latent code size 
 
 # TODO: Use model.negative_sampling to get neg edge indices 
 
@@ -19,7 +21,6 @@ from utils import get_adjacency, plot_results, kernel_similarity, graph_edit_dis
 
 import os.path as osp
 import sys
-# import argparse
 import pickle as pkl
 
 from collections import defaultdict
@@ -30,7 +31,7 @@ import networkx as nx
 import torch
 import torch.nn.functional as F
 
-from torch_geometric.datasets import Planetoid
+from torch_geometric.datasets import Planetoid, MNISTSuperpixels
 from torch_geometric.nn import GCNConv
 import torch_geometric.transforms as T
 
@@ -52,13 +53,16 @@ class Encoder(torch.nn.Module):
         return self.conv_mu(x, edge_index), self.conv_logvar(x, edge_index)
 
 def main(args, kwargs):
-    dataset = args.dataset.upper()
+    dataset = args.data.upper()
 
     if dataset in ['CORA', 'CITESEER', 'PUBMED']:
         path = '../data/geometric/' + dataset
         print('Using {} dataset'.format(dataset))
-
         dataset = Planetoid(path, dataset, T.NormalizeFeatures())
+    elif dataset == 'MNIST':
+        path = '../data/geometric/' + dataset
+        print('Using {} dataset'.format(dataset))
+        dataset = MNISTSuperpixels(path, dataset, T.NormalizeFeatures())
     else:
         sys.exit("You must choose one of the 'Planetoid' datasets (CORA, CITESEER, or PUBMED).")
 
@@ -198,17 +202,21 @@ def main(args, kwargs):
     # print('Test AUC: {:.4f}, Test AP: {:.4f}'.format(auc, ap))
 
     # Pickle results 
-
-    if args.save:    
-        modelPath = '../models/' + args.notes + '_' + args.dataset + '_RESULTS.p'
-
+    if args.save:  
+        print('saved')  
         if args.notes is None:
-            plotPath = '../figures/geometric/' + args.dataset + '_RESULTS.png'
-        else:
-            plotPath = '../figures/geometric/' + args.notes + '_' +args.dataset + '_RESULTS.png'
+            print('no notes')
+            modelPath = '../models/' + args.data + '_RESULTS.p'
+            plotPath = '../figures/geometric/' + args.data + '_RESULTS.png'
+        else: 
+            print('notes')
+            print(args.notes)
+            modelPath = '../models/' + args.notes + '_' + args.data + '_RESULTS.p'
+            plotPath = '../figures/geometric/' + args.notes + '_' + args.data + '_RESULTS.png'
 
+        print(modelPath, '\n', plotPath)
         pkl.dump(results, open(modelPath, 'wb'))
-        plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath)
+        plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath, loss=args.loss)
 
         # plot_results(pkl.load(open('CORA_RESULTS.p', 'rb')), path='../figures/geometric/CORA_RESULTS.png')
         # plot_results(pkl.load(open('CITESEER_RESULTS.p', 'rb')), path='../figures/geometric/CITESEER_RESULTS.png')
