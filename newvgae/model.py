@@ -1,4 +1,3 @@
-# TODO: Test mnist
 # TODO: Try L2 loss with proper labeling
 # TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 
@@ -152,6 +151,7 @@ def main(args, kwargs):
 
         # accuracy = model.get_accuracy(z, pos_edge_index, neg_edge_index, adj_original)
         # accuracy = model.get_accuracy_new(z, adj_original)
+        # print(accuracy)
         auc, ap = model.test(z, pos_edge_index, neg_edge_index)
 
         # return accuracy, auc, ap
@@ -205,39 +205,16 @@ def main(args, kwargs):
     if args.save:  
         print('saved')  
         if args.notes is None:
-            print('no notes')
             modelPath = '../models/' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.data + '_RESULTS.png'
         else: 
-            print('notes')
-            print(args.notes)
             modelPath = '../models/' + args.notes + '_' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.notes + '_' + args.data + '_RESULTS.png'
 
-        print(modelPath, '\n', plotPath)
         pkl.dump(results, open(modelPath, 'wb'))
         plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath, loss=args.loss)
 
-        # plot_results(pkl.load(open('CORA_RESULTS.p', 'rb')), path='../figures/geometric/CORA_RESULTS.png')
-        # plot_results(pkl.load(open('CITESEER_RESULTS.p', 'rb')), path='../figures/geometric/CITESEER_RESULTS.png')
-        # plot_results(pkl.load(open('PUBMED_RESULTS.p', 'rb')), path='../figures/geometric/PUBMED_RESULTS.png')
-
-
 if __name__ == '__main__':
-
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--model', type=str, default='VGAE', help='Type of model (by default the base VGAE)')
-    # parser.add_argument('--dataset', type=str, default='CORA', help='PyTorch Geometric-Loaded Dataset')
-    # parser.add_argument('--seed', type=int, default=0)
-    # parser.add_argument('--test_freq', type=int, default=10)
-    # parser.add_argument('--num_epochs', type=int, default=200)
-    # parser.add_argument('--save', type=int, default=1)
-    # parser.add_argument('--notes', type=str, default=None)
-
-    # # add arg for epochs
-
-    # args, unknown = parser.parse_known_args()
-
     args = parameter_parser()
     
     np.random.seed(args.seed)

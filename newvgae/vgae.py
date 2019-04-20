@@ -149,6 +149,9 @@ class GAE(torch.nn.Module):
         # TODO: Make sure original array is passed in as a numpy array of ints
         adj_reconstructed = (adj_reconstructed > .5).astype(int)
 
+        # print(adj_reconstructed)
+        # print(adj_orig)
+
         return mean_squared_error(adj_orig, adj_reconstructed)
 
     def recon_loss(self, z, pos_edge_index):
@@ -187,16 +190,18 @@ class GAE(torch.nn.Module):
         neg_y = z.new_zeros(neg_edge_index.size(1))
         y = torch.cat([pos_y, neg_y], dim=0)
 
-        pos_pred = self.decode_indices(z, pos_edge_index)
-        neg_pred = self.decode_indices(z, neg_edge_index)
+        pos_pred = self.decode_indices(z, pos_edge_index, sigmoid=True)
+        neg_pred = self.decode_indices(z, neg_edge_index, sigmoid=True)
         pred = torch.cat([pos_pred, neg_pred], dim=0)
 
         y, pred = y.detach().cpu().numpy(), pred.detach().cpu().numpy()
 
+        # print('y: ', y, y.shape)
+        # print('pred: ', pred, pred.shape)
+
         return roc_auc_score(y, pred), average_precision_score(y, pred)
 
     def get_accuracy(self, z, edges_pos, edges_neg, adj_orig):
-
         def sigmoid(x):
             return 1 / (1 + np.exp(-x))
 
@@ -218,10 +223,10 @@ class GAE(torch.nn.Module):
             neg.append(adj_orig[e[0], e[1]])
 
         preds_all = np.hstack([preds_pos, preds_neg])
-        # print(preds_all)
+        print('preds_all: ', preds_all)
 
         labels_all = np.hstack([np.ones(len(preds_pos)), np.zeros(len(preds_pos))])
-        # print(labels_all)
+        print('labels_all: ', labels_all)
 
         accuracy = accuracy_score((preds_all > .5).astype(float), labels_all)
         return accuracy
@@ -229,14 +234,15 @@ class GAE(torch.nn.Module):
     def get_accuracy_new(self, z, adj_orig):
 
         adj_reconstructed = self.decode(z, sigmoid=True).detach().numpy()
-        adj_orig = adj_orig.toarray().astype(int)
-        adj_reconstructed = (adj_reconstructed > .5).astype(int)
+        # print(adj_reconstructed)
+    
+        adj_orig = adj_orig.astype(float)
+        adj_reconstructed = (adj_reconstructed > .5).astype(float)
 
         # print(adj_reconstructed)
         # print(adj_orig)
         # print('Reconstructed adj matrix: ', adj_reconstructed.shape, type(adj_reconstructed))
         # print('Original adj matrix: ', adj_orig.shape, type(adj_orig))
-
         accuracy = accuracy_score(adj_orig, adj_reconstructed)
 
         return accuracy
