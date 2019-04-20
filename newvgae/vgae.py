@@ -82,7 +82,7 @@ class GAE(torch.nn.Module):
 
     def upconv_decode(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
         upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
-        upconv2 = GCNConv(2*out_channels, in_channels, cached=True)
+        upconv2 = GCNConv(2 * out_channels, in_channels, cached=True)
 
         x = F.relu(upconv1(z, edge_index))
         x = upconv2(x, edge_index)
@@ -192,6 +192,7 @@ class GAE(torch.nn.Module):
 
     def new_recon_loss(self, z, edge_index, num_nodes, num_channels, adj_original):
         pred = self.upconv_decode(z, edge_index, num_nodes, num_channels)
+        pred = torch.round(pred)
         # print(pred, pred.shape)
         # print(adj_original, adj_original.shape)
         
