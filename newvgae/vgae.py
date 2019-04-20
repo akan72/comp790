@@ -173,6 +173,18 @@ class GAE(torch.nn.Module):
 
         return pos_loss + neg_loss
 
+        def upconvDecoder(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
+            upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
+            upconv2 = GCNConv(2*out_channels, in_channels, cached=True)
+
+            z = F.relu(upconv1(z, edge_index))
+            z = upconv2(z, edge_index)
+            print("in upconvDecoder")
+            print("z", z)
+            print(z.shape)
+            
+            return z 
+
     def test(self, z, pos_edge_index, neg_edge_index):
         r"""Given latent variables :obj:`z`, positive edges
         :obj:`pos_edge_index` and negative edges :obj:`neg_edge_index`,
