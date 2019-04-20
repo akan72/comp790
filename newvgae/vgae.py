@@ -58,6 +58,20 @@ class GAE(torch.nn.Module):
     def encode(self, *args, **kwargs):
         r"""Runs the encoder and computes latent variables for each node."""
         return self.encoder(*args, **kwargs)
+        
+    def decode_armaan(self, z, sigmoid=True):
+        r"""Decodes the latent variables :obj:`z` into a probabilistic
+        dense adjacency matrix. Then converts it to an edgelist
+
+        Args:
+            z (Tensor): The latent space :math:`\mathbf{Z}`.
+            sigmoid (bool, optional): If set to :obj:`False`, does not apply
+                the logistic sigmoid function to the output.
+                (default: :obj:`True`)
+        """
+        adj = torch.matmul(z, z.t())
+        return torch.sigmoid(adj) if sigmoid else adj
+        pass
 
     def decode(self, z, sigmoid=True):
         r"""Decodes the latent variables :obj:`z` into a probabilistic
@@ -83,6 +97,20 @@ class GAE(torch.nn.Module):
                 the logistic sigmoid function to the output.
                 (default: :obj:`True`)
         """
+        print("in decode indices")
+        print("z", z.shape)
+        print(z)
+        print("edge_index", edge_index.shape)
+        print(edge_index)
+        print("z[edge_index[0]]", z[edge_index[0]].shape)
+        print(z[edge_index[0]])
+        print("z[edge_index[1]]", z[edge_index[1]].shape)
+        print(z[edge_index[1]])
+        print("(z[edge_index[0]] * z[edge_index[1]]).sum(dim=1)",  (z[edge_index[0]] * z[edge_index[1]]).sum(dim=1).shape)
+        print((z[edge_index[0]] * z[edge_index[1]]).sum(dim=1))
+        
+        input("press enter to continue...")
+
         value = (z[edge_index[0]] * z[edge_index[1]]).sum(dim=1)
         return torch.sigmoid(value) if sigmoid else value
 
@@ -161,11 +189,11 @@ class GAE(torch.nn.Module):
             pos_edge_index (LongTensor): The positive edges to train against.
         """
 
-        pos_loss = -torch.log(self.decode(z, pos_edge_index) +
+        pos_loss = -torch.log(self.decode_indices(z, pos_edge_index) +
                               EPS).mean()
 
         neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
-        neg_loss = -torch.log(1 - self.decode(z, neg_edge_index) +
+        neg_loss = -torch.log(1 - self.decode_indices(z, neg_edge_index) +
                               EPS).mean()
 
         return pos_loss + neg_loss
@@ -187,8 +215,8 @@ class GAE(torch.nn.Module):
         neg_y = z.new_zeros(neg_edge_index.size(1))
         y = torch.cat([pos_y, neg_y], dim=0)
 
-        pos_pred = self.decode(z, pos_edge_index)
-        neg_pred = self.decode(z, neg_edge_index)
+        pos_pred = self.decode_indices(z, pos_edge_index)
+        neg_pred = self.decode_indices(z, neg_edge_index)
         pred = torch.cat([pos_pred, neg_pred], dim=0)
 
         y, pred = y.detach().cpu().numpy(), pred.detach().cpu().numpy()
