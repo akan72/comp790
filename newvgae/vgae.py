@@ -186,7 +186,7 @@ class GAE(torch.nn.Module):
         neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
         neg_loss = -torch.log(1 - self.decode_indices(z, neg_edge_index) +
                               EPS).mean()
-
+                              
         return pos_loss + neg_loss
 
     def new_recon_loss(self, z, edge_index, num_nodes, num_channels, adj_original):

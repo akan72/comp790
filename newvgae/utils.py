@@ -28,9 +28,53 @@ def get_adjacency(dataset):
 
     return adj
 
-def plot_results(results, path, loss):
+
+def plot_losses(results, path, loss, anneal): 
+    plt.close('all')
+    fig = plt.figure(figsize=(14, 7))
+
+    # Plotting Training Loss 
+    reconstructionLoss = results['recon_loss']
+    kl_loss = results['kl']
+    
+    x_axis = np.array(range(len(reconstructionLoss)))
+
+    if loss == 'anneal': 
+        title = 'Training BCE Loss ({} annealing epochs)'.format(str(anneal))
+        ylabel = 'BCE Reconstruction Loss'
+    else: 
+        title = 'Training Loss ({})'.format(loss.upper)
+        ylabel = '{} Reconstruction Loss'.format(loss.upper())
+
+    # Plotting Reconstruction loss
+    ax = fig.add_subplot(1, 2, 1)
+    ax.plot(x_axis, reconstructionLoss)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel('Epoch')
+    ax.set_title(title)
+    ax.legend(['Train'], loc='upper right')
+
+    # Plotting KL Loss
+    ax = fig.add_subplot(1, 2, 2)
+    ax.plot(x_axis, kl_loss)
+    ax.set_ylabel('KL Loss')
+    ax.set_xlabel('Epoch')
+    ax.set_title(title)
+    ax.legend(['Train'], loc='upper right')
+
+    fig.tight_layout()
+    fig.savefig(path)
+
+def plot_results(results, path, loss, anneal):
     plt.close('all')
     fig = plt.figure(figsize=(8, 8))
+
+    if loss == 'anneal': 
+        title = 'Training BCE Reconstruction Loss ({} annealing epochs)'.format(str(anneal))
+        # ylabel = 'BCE Reconstruction Loss'
+    else: 
+        title = 'Training Reconstruction Loss ({} reconstruction)'.format(loss.upper())
+        # ylabel = loss.upper() + ' Reconstruction Loss'
 
     # Ploting Training Loss 
     trainingLoss = results['loss']
@@ -46,7 +90,7 @@ def plot_results(results, path, loss):
     ax.plot(x_axis_train, trainingLoss)
     ax.set_ylabel('ELBO Loss')
     ax.set_xlabel('Epoch')
-    ax.set_title('Training ELBO Loss (' + loss.upper() + ' reconstruction)')
+    ax.set_title(title)
     ax.legend(['Train'], loc='upper right')
 
     # Plotting Accuracy
@@ -124,7 +168,6 @@ def graph_edit_distance(original, reconstructed):
 
     return edit_distance
 
-
 def parameter_parser():
     parser = argparse.ArgumentParser(description= 'VGAE')
 
@@ -168,10 +211,15 @@ def parameter_parser():
                         type=int,
                         default=200,
                         help='Number of epochs for which the model is run.')
-    
-    parser.add_argument('--kl_weight',
-                        type=float,
-                        default=1.0,
-                        help='Kl Annealing weight, default of 1.0 == no annealing.')
+
+    parser.add_argument('--kl_warmup',
+                        type=int,
+                        default=10,
+                        help='Number of annealing epochs.')
+
+    # parser.add_argument('--kl_start',
+    #                     type=float,
+    #                     default=1.0,
+    #                     help='Starting KL weight, 1.0 if no annealing is done.')
 
     return parser.parse_args()

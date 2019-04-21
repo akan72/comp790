@@ -1,7 +1,6 @@
-# TODO: Sampling codes
-# TODO: Isolate the Kl term
+# TODO: Isolate the Kl term and recon loss with and without annealing
+# TODO: Sampling codes, visualizing encoding space 
 # TODO: Play with latent code size 
-# TODO: Visualize encoding space?
 
 # TODO: Check whether we are storing the full adjacency matrix within memory multiple times
 # TODO: Graph edit distance? try nx first
@@ -27,7 +26,7 @@ from urllib3 import request
 
 # import parser
 from utils import (get_adjacency, graph_edit_distance, kernel_similarity,
-                   parameter_parser, plot_results)
+                   parameter_parser, plot_results, plot_losses)
 from vgae import GAE, VGAE, negative_sampling
 
 
@@ -127,25 +126,52 @@ def main(args, kwargs):
 
         if args.loss == 'bce':
             loss = model.recon_loss(z, data.train_pos_edge_index)
-            loss = loss + 0.001 * model.kl_loss()
+            results['recon_loss'].append(loss)
+
+            kl_loss = model.kl_loss()
+            results['kl'].append(kl_loss)
+
+            loss = loss + 0.001 * kl_loss
+
         elif args.loss == 'newbce':
             numNodes = len(data['x'])
             loss = model.new_recon_loss(z, edge_index, num_nodes=numNodes, num_channels=channels, adj_original=adj_original)
-            loss = loss + 0.001 * model.kl_loss()
+            results['recon_loss'].append(loss)
 
-            print('loss: ', loss)
+            kl_loss = model.kl_loss()
+            results['kl'].append(kl_loss)
 
+            loss = loss + 0.001 * kl_loss
         elif args.loss == 'l2':
             loss = model.recon_loss_l2(z, adj_original)
-            loss = loss + 0.001 * model.kl_loss()
+            results['recon_loss'].append(loss)
+
+            kl_loss = model.kl_loss()
+            results['kl'].append(kl_loss)
+
+            loss = loss + 0.001 * kl_loss
         elif args.loss == 'anneal':
+            # anneal_weight = (1.0 - args.kl_weight) / (len(data.train_pos_edge_index) )
 
-            anneal_weight = (1.0 - args.kl_weight) / (len(data.train_pos_edge_index))
+            # linear annealing
+            anneal_rate =  epoch/args.kl_warmup if epoch < args.kl_warmup else 1.
+            kl_weight = min(1.0, anneal_rate)
+
+            # Starting annealing 
+            # kl_weight = args.kl_start
+            # anneal_rate = (1.0 - args.kl_start) / (args.kl_warmup * (len(data)))
+            # kl_weight = min(1.0, kl_weight + anneal_rate)
+
+            print(kl_weight)
+
             loss = model.recon_loss(z, data.train_pos_edge_index)
-            loss = loss + 0.001 * (model.kl_loss() * anneal_weight)
-             
+            results['recon_loss'].append(loss)
 
-        # TODO: Normalize epoch loss with (2/ N*N) ?
+            kl_loss = model.kl_loss() * kl_weight
+            results['kl'].append(kl_loss)
+
+            loss = loss + 0.001 * (kl_loss)
+
         results['loss'].append(loss)
         
         loss.backward()
@@ -213,13 +239,17 @@ def main(args, kwargs):
         if args.notes is None:
             modelPath = '../models/' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.data + '_RESULTS.png'
+            lossPath = '../figures/geometric/' + args.data + '_LOSSES.png'
         else: 
             modelPath = '../models/' + args.notes + '_' + args.data + '_RESULTS.p'
             plotPath = '../figures/geometric/' + args.notes + '_' + args.data + '_RESULTS.png'
+            lossPath = '../figures/geometric/' + args.notes + '_' + args.data + '_LOSSES.png'
 
         pkl.dump(results, open(modelPath, 'wb'))
-        plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath, loss=args.loss)
 
+        plot_results(pkl.load(open(modelPath, 'rb')), path=plotPath, loss=args.loss, anneal=args.kl_warmup)
+        plot_losses(pkl.load(open(modelPath, 'rb')), path=lossPath, loss=args.loss, anneal=args.kl_warmup)
+            
 if __name__ == '__main__':
     args = parameter_parser()
     
