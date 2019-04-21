@@ -1,10 +1,9 @@
 .vscode
 
 requirements.txt
-data/temp*
-data/geometric*
-data/paperData
-old/
+models/old/
+oldscripts/
+data/*
 impl/
 
 # Byte-compiled / optimized / DLL files

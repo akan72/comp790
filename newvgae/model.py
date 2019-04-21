@@ -1,19 +1,15 @@
-# TODO: Try L2 loss with proper labeling
-# TODO: Check whether we are storing the full adjacency matrix within memory multiple times
-
-# TODO: Graph edit distance? try nx first
-
-# TODO: Visualize encoding space?
-# TODO: Play with latent code size 
 # TODO: Sampling codes
+# TODO: Isolate the Kl term
+# TODO: Play with latent code size 
+# TODO: Visualize encoding space?
+
+# TODO: Check whether we are storing the full adjacency matrix within memory multiple times
+# TODO: Graph edit distance? try nx first
 
 # TODO: EM
 # TODO: Differentiable graph kernel
 
 # TODO: Fix accuracy metric with decode_indices
-# TODO: Look at embeddings and reconstruction
-
-# TODO: Use model.negative_sampling to get neg edge indices 
 
 import os.path as osp
 import pickle as pkl
@@ -143,7 +139,11 @@ def main(args, kwargs):
             loss = model.recon_loss_l2(z, adj_original)
             loss = loss + 0.001 * model.kl_loss()
         elif args.loss == 'anneal':
-            pass 
+
+            anneal_weight = (1.0 - args.kl_weight) / (len(data.train_pos_edge_index))
+            loss = model.recon_loss(z, data.train_pos_edge_index)
+            loss = loss + 0.001 * (model.kl_loss() * anneal_weight)
+             
 
         # TODO: Normalize epoch loss with (2/ N*N) ?
         results['loss'].append(loss)

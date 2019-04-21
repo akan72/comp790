@@ -168,5 +168,10 @@ def parameter_parser():
                         type=int,
                         default=200,
                         help='Number of epochs for which the model is run.')
+    
+    parser.add_argument('--kl_weight',
+                        type=float,
+                        default=1.0,
+                        help='Kl Annealing weight, default of 1.0 == no annealing.')
 
     return parser.parse_args()

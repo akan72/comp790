@@ -1,7 +1,6 @@
 import math
 import random
 
-import networkx as nx
 import numpy as np
 import torch
 from networkx.convert_matrix import from_numpy_matrix
