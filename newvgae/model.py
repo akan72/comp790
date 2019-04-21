@@ -27,6 +27,7 @@ import torch.nn.functional as F
 import torch_geometric.transforms as T
 from torch_geometric.datasets import MNISTSuperpixels, Planetoid
 from torch_geometric.nn import GCNConv
+from torch_geometric.read.planetoid import edge_index_from_dict
 from urllib3 import request
 
 # import parser
@@ -68,7 +69,6 @@ def main(args, kwargs):
 
     # Store the original adjacnecy matrix (for later calculation of edge prediction accuracy)
     adj_original = torch.tensor(np.asarray(get_adjacency(data).toarray(), dtype=np.float32), requires_grad=False)
-
     channels = 16
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -90,7 +90,14 @@ def main(args, kwargs):
 
         # Produces N * channels vector         
         z = model.encode(x, edge_index)    
-
+        print("in train")
+        print("x", x.shape, type(x))
+        print(x)
+        print("edge_index", edge_index.shape, type(edge_index))
+        print(edge_index)
+        print("data.train_pos_edge_index", data.train_pos_edge_index.shape)
+        
+        input("press enter to continue...")
         '''
         TESTING DECODE_INDICES 
         '''
@@ -133,8 +140,15 @@ def main(args, kwargs):
             loss = model.recon_loss(z, data.train_pos_edge_index)
             loss = loss + 0.001 * model.kl_loss()
         elif args.loss == 'newbce':
-            numNodes = len(data['x'])
-            loss = model.new_recon_loss(z, edge_index, num_nodes=numNodes, num_channels=channels, adj_original=adj_original)
+            thing = [tuple(x) for x in data.train_pos_edge_index.numpy().transpose().tolist()]
+            train_adj_original = np.asarray(nx.adjacency_matrix(nx.from_edgelist(thing)).toarray(), dtype=np.float32)
+
+            numNodes = train_adj_original.shape[0]
+            print("numNodes", numNodes)
+
+            # print("train_adj_original",train_adj_original.shape)
+            # print(train_adj_original)
+            loss = model.new_recon_loss(z, train_adj_original, num_nodes=numNodes, num_channels=channels, adj_original=adj_original)
             loss = loss + 0.001 * model.kl_loss()
 
             print('loss: ', loss)

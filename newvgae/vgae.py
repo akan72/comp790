@@ -4,14 +4,14 @@ import random
 import networkx as nx
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from networkx.convert_matrix import from_numpy_matrix
 from sklearn.metrics import (accuracy_score, average_precision_score,
                              mean_squared_error, roc_auc_score)
-
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn.modules import BCELoss
 from torch_geometric.nn import GCNConv
+from torch_geometric.read.planetoid import edge_index_from_dict
 
 EPS = 1e-15
 
@@ -81,8 +81,8 @@ class GAE(torch.nn.Module):
         return torch.sigmoid(adj) if sigmoid else adj
 
     def upconv_decode(self, z, edge_index, in_channels, out_channels, sigmoid=True): 
-        # upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
-        # upconv2 = GCNConv(2 * out_channels, in_channels, cached=True)
+        upconv1 = GCNConv(out_channels, 2 * out_channels, cached=True)
+        upconv2 = GCNConv(2 * out_channels, in_channels, cached=True)
 
         # x = F.relu(upconv1(z, edge_index))
         # x = upconv2(x, edge_index)
@@ -142,9 +142,15 @@ class GAE(torch.nn.Module):
         # Negative edges.
         num_nodes = data.num_nodes
         neg_adj_mask = torch.ones(num_nodes, num_nodes, dtype=torch.uint8)
+        print("neg_adj_mask", neg_adj_mask.shape)
+        print(neg_adj_mask)
         neg_adj_mask = neg_adj_mask.triu(diagonal=1)
+        print("neg_adj_mask triu", neg_adj_mask.shape)
+        print(neg_adj_mask)
         neg_adj_mask[row, col] = 0
-
+        print("neg_adj_mask =0", neg_adj_mask.shape)
+        print(neg_adj_mask)
+        input("..")
         neg_row, neg_col = neg_adj_mask.nonzero().t()
         perm = torch.tensor(random.sample(range(neg_row.size(0)), n_v + n_t))
         perm = perm.to(torch.long)
@@ -192,15 +198,20 @@ class GAE(torch.nn.Module):
 
         return pos_loss + neg_loss
 
-    def new_recon_loss(self, z, edge_index, num_nodes, num_channels, adj_original):
-        pred = self.upconv_decode(z, edge_index, num_nodes, num_channels)
+    def new_recon_loss(self, z, train_adj_original, num_nodes, num_channels, adj_original):
+        print("in new_recon_loss")
+        print("train_adj_original", train_adj_original.shape, type(train_adj_original))
+        print(train_adj_original)
+        pred = self.upconv_decode(z, train_adj_original, num_nodes, num_channels)
         pred = torch.round(pred)
-        # print(pred, pred.shape)
-        # print(adj_original, adj_original.shape)
-        
+
+        print("pred", pred.shape, type(pred))
+        print(pred)
+        input("press enter to continue...")
+
         bce = nn.BCELoss()
     
-        return bce(pred, adj_original)
+        return bce(pred, train_adj_original)
 
     def test(self, z, pos_edge_index, neg_edge_index):
         r"""Given latent variables :obj:`z`, positive edges
