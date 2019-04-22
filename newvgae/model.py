@@ -33,9 +33,12 @@ from vgae import GAE, VGAE, negative_sampling
 
 # Define forward function of our VGAE Model 
 class Encoder(torch.nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, hidden_channels =64):
         super(Encoder, self).__init__()
-        self.conv1 = GCNConv(in_channels, 2 * out_channels, cached=True)
+        print(in_channels, out_channels, hidden_channels)
+        self.conv1 = GCNConv(in_channels, 4*hidden_channels, cached=True)
+        self.conv2 = GCNConv(4*hidden_channels, hidden_channels, cached=True)
+        self.conv3 = GCNConv(hidden_channels, 2*out_channels, cached=True)
 
         self.conv_mu = GCNConv(2 * out_channels, out_channels, cached=True)
         self.conv_logvar = GCNConv(
@@ -43,7 +46,9 @@ class Encoder(torch.nn.Module):
 
     def forward(self, x, edge_index):
         x = F.relu(self.conv1(x, edge_index))
-        
+        x = F.relu(self.conv2(x,edge_index))
+        x = F.relu(self.conv3(x,edge_index))
+
         return self.conv_mu(x, edge_index), self.conv_logvar(x, edge_index)
 
 def main(args, kwargs):
