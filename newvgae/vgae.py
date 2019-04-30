@@ -68,7 +68,7 @@ class GAE(torch.nn.Module):
 
     def decode(self, z, sigmoid=True):
         r"""Decodes the latent variables :obj:`z` into a probabilistic
-        dense adjacency matrix.
+        xdense adjacency matrix.
 
         Args:
             z (Tensor): The latent space :math:`\mathbf{Z}`.
@@ -122,7 +122,7 @@ class GAE(torch.nn.Module):
         mask = row < col
         row, col = row[mask], col[mask]
 
-        n_v = math.floor(val_ratio * row.size(0))
+        n_v = math.iloor(val_ratio * row.size(0))
         n_t = math.floor(test_ratio * row.size(0))
 
         # Positive edges.
@@ -186,7 +186,7 @@ class GAE(torch.nn.Module):
         neg_edge_index = negative_sampling(pos_edge_index, z.size(0))
         neg_loss = -torch.log(1 - self.decode_indices(z, neg_edge_index) +
                               EPS).mean()
-                              
+
         return pos_loss + neg_loss
 
     def new_recon_loss(self, z, edge_index, num_nodes, num_channels, adj_original):
