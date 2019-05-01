@@ -58,6 +58,16 @@ class GAE(torch.nn.Module):
     def __init__(self, encoder):
         super(GAE, self).__init__()
         self.encoder = encoder
+        # self.linear_decode = nn.Sequential(
+        #     nn.Linear(2708*16, 2708*16),
+        #     nn.ReLU(),
+        #     nn.Linear(2708*16, 2708*16),
+        #     nn.ReLU(),
+        #     nn.Linear(2708*16, 2708*16),
+        #     nn.Sigmoid()
+        # )
+
+
 
     def reset_parameters(self):
         reset(self.encoder)
@@ -76,6 +86,9 @@ class GAE(torch.nn.Module):
                 the logistic sigmoid function to the output.
                 (default: :obj:`True`)
         """
+        # print(z.shape)
+        # input("...")
+
         adj = torch.matmul(z, z.t())
         return torch.sigmoid(adj) if sigmoid else adj
 
@@ -99,6 +112,15 @@ class GAE(torch.nn.Module):
                 the logistic sigmoid function to the output.
                 (default: :obj:`True`)
         """
+        # print("hi")
+        # print(z.shape)
+        # print(z)
+        # # input("...")
+        # z.view(-1)
+        # print(z.shape)
+        # input("...")
+        # z = linear_decode(z)
+
         value = (z[edge_index[0]] * z[edge_index[1]]).sum(dim=1)
         return torch.sigmoid(value) if sigmoid else value
 
