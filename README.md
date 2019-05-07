@@ -1,5 +1,8 @@
-# comp790
+# Flexible Variational Graph Auto-Encoders
+
 ### Alex Kan and Armaan Sethi
+
+## [Project Final Report](https://github.com/akan72/comp790/blob/master/reports/KanSethiFinalReport.pdf)  
 
 @misc{snapnets,
   author       = {Jure Leskovec and Andrej Krevl},
